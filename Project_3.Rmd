@@ -27,14 +27,6 @@ airline_train$Customer.Type <- as.factor(airline_train$Customer.Type)
 airline_train$Type.of.Travel <- as.factor(airline_train$Type.of.Travel)
 airline_train$Class <- as.factor(airline_train$Class)
 airline_train$satisfaction <- as.factor(airline_train$satisfaction)
-
-airline_test$X <- NULL
-airline_test$id <- NULL
-airline_test$Gender <- as.factor(airline_test$Gender)
-airline_test$Customer.Type <- as.factor(airline_test$Customer.Type)
-airline_test$Type.of.Travel <- as.factor(airline_test$Type.of.Travel)
-airline_test$Class <- as.factor(airline_test$Class)
-airline_test$satisfaction <- as.factor(airline_test$satisfaction)
 ```
 
 ### Data Exploration 
