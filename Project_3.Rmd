@@ -2,14 +2,20 @@
 title: "Project_3"
 author: "Aaron Zelmanov"
 date: "3/29/2021"
-output: html_document
+output:
+  html_document:
+    code_folding: hide
 ---
+## {.tabset}
 
+### Introduction 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-```
+library(ggplot2)
+library(class)
+library(caret)
+library(gmodels)
 
-```{r}
 airline_train <- read.csv("train.csv")
 airline_test <- read.csv("test.csv")
 
@@ -28,7 +34,13 @@ airline_test$Customer.Type <- as.factor(airline_test$Customer.Type)
 airline_test$Type.of.Travel <- as.factor(airline_test$Type.of.Travel)
 airline_test$Class <- as.factor(airline_test$Class)
 airline_test$satisfaction <- as.factor(airline_test$satisfaction)
+```
 
+### Data Exploration 
+
+### Regression 
+
+```{r}
 logit_model <- glm(satisfaction ~., data = airline_train, family = "binomial")
 summary(logit_model)
 
@@ -43,3 +55,14 @@ binary_predictions <- ifelse(prediction > 0.5, 1, 0)
 CrossTable(x = airline_test$satisfaction, y = binary_predictions, prop.chisq = FALSE)
 ```
 
+### KNN
+
+### ANN
+
+### Decision Tree 
+
+### SVM 
+
+### Combined Model 
+
+### Conclusion 
