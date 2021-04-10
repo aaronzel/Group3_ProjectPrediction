@@ -15,6 +15,7 @@ library(ggplot2)
 library(class)
 library(caret)
 library(gmodels)
+library(InformationValue)
 
 airline_train <- read.csv("train.csv")
 airline_test <- read.csv("test.csv")
