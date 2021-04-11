@@ -16,6 +16,7 @@ library(class)
 library(caret)
 library(gmodels)
 library(InformationValue)
+library(C50)
 
 airline_train <- read.csv("train.csv")
 airline_test <- read.csv("test.csv")
@@ -47,13 +48,13 @@ summary(logit_model)
 
 prediction <- predict(logit_model, newdata = airline_test, type = "response")
 
-optimal <- optimalCutoff(airline_test$satisfaction, prediction)[1]
+#optimal <- optimalCutoff(airline_test$satisfaction, prediction)[1]
 
-binary_predictions <- ifelse(prediction > optimal, 1, 0)
+#binary_predictions <- ifelse(prediction > optimal, 1, 0)
 
 #airline_test_labels <- airline_test[airline_test, "satisfaction"]
 
-CrossTable(x = airline_test$satisfaction, y = binary_predictions, prop.chisq = FALSE)
+#CrossTable(x = airline_test$satisfaction, y = binary_predictions, prop.chisq = FALSE)
 ```
 
 ### KNN
@@ -61,6 +62,29 @@ CrossTable(x = airline_test$satisfaction, y = binary_predictions, prop.chisq = F
 ### ANN
 
 ### Decision Tree 
+
+```{r}
+airline_decision <- C5.0(satisfaction ~ ., data = airline_train)
+airline_decision_pred <- predict(airline_decision, newdata = airline_test)
+
+CrossTable(airline_test$satisfaction, airline_decision_pred)
+
+
+#Kappa Values
+
+decision_accuracy <- (14242 + 10715)/25976
+decision_sensitivity <- (10715/11403)
+decision_specificity <- (14242/14573)
+decision_precision <- (10715/11046)
+
+#Summary
+
+Model_name <- "Decision Tree"
+
+decision_metrics <- data.frame(Model_name, decision_accuracy, decision_sensitivity, decision_specificity, decision_precision)
+decision_metrics
+```
+
 
 ### SVM 
 
