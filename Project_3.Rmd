@@ -27,7 +27,7 @@ airline_train$Gender <- as.factor(airline_train$Gender)
 airline_train$Customer.Type <- as.factor(airline_train$Customer.Type)
 airline_train$Type.of.Travel <- as.factor(airline_train$Type.of.Travel)
 airline_train$Class <- as.factor(airline_train$Class)
-airline_train$satisfaction <- as.factor(airline_train$satisfaction)
+airline_train$satisfaction <- as.numeric(as.factor(airline_train$satisfaction))-1
 
 airline_test$X <- NULL
 airline_test$id <- NULL
@@ -35,7 +35,7 @@ airline_test$Gender <- as.factor(airline_test$Gender)
 airline_test$Customer.Type <- as.factor(airline_test$Customer.Type)
 airline_test$Type.of.Travel <- as.factor(airline_test$Type.of.Travel)
 airline_test$Class <- as.factor(airline_test$Class)
-airline_test$satisfaction <- as.factor(airline_test$satisfaction)
+airline_test$satisfaction <- as.numeric(as.factor(airline_test$satisfaction))-1
 ```
 
 ### Data Exploration 
@@ -64,10 +64,15 @@ prediction <- predict(logit_model, newdata = airline_test, type = "response")
 ### Decision Tree 
 
 ```{r}
+airline_test$satisfaction <- as.factor(airline_test$satisfaction)
+airline_train$satisfaction <- as.factor(airline_train$satisfaction)
+
 airline_decision <- C5.0(satisfaction ~ ., data = airline_train)
 airline_decision_pred <- predict(airline_decision, newdata = airline_test)
 
 CrossTable(airline_test$satisfaction, airline_decision_pred)
+airline_decision_pred <- as.factor(airline_decision_pred)
+confusionMatrix(airline_test$satisfaction, airline_decision_pred)
 
 
 #Kappa Values
