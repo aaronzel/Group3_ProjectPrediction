@@ -37,6 +37,32 @@ airline_test$Type.of.Travel <- as.factor(airline_test$Type.of.Travel)
 airline_test$Class <- as.factor(airline_test$Class)
 airline_test$satisfaction <- as.numeric(as.factor(airline_test$satisfaction))-1
 ```
+**Context:** We are working with the airline dataset which contains various demographics and flight information along with the final satisfaction level.  
+
+**Audience:** The results of our models are useful for airlines in order to optimize their flight experience and lead to maximum satisfaction. 
+
+**Key Business Objectives:** What factors are predictive of a satisfied or dissatisfied passenger? How can airlines use this information to improve certain aspects of service? How can airlines predict who to invest more in (dissatisfied passengers)? 
+
+```{r}
+#Train and Test sets to use 
+
+#airline_train FOR decision tree, regression
+#airline_test FOR decision tree, regression
+#airline_train_factorized_normalized FOR KNN, ANN
+#airline_test_factorized_normalized FOR KNN, ANN
+
+normalize <- function(x) {
+  return ((x - min(x)) / (max(x) - min(x))) #everything 0 to 1
+}
+
+airline_train_factorized<- as.data.frame(model.matrix(~.-1, data = airline_train))
+airline_train_factorized_normalized <- as.data.frame(lapply(airline_train_factorized[1:ncol(airline_train_factorized)], normalize))
+airline_factorizednormalized_trainlabels <- airline_train_factorized_normalized["satisfaction"]
+
+airline_test_factorized<- as.data.frame(model.matrix(~.-1, data = airline_test))
+airline_test_factorized_normalized <- as.data.frame(lapply(airline_test_factorized[1:ncol(airline_test_factorized)], normalize))
+airline_factorizednormalized_testlabels <- airline_test_factorized_normalized["satisfaction"]
+```
 
 ### Data Exploration 
 
