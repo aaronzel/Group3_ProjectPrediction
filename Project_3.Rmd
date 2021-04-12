@@ -98,7 +98,7 @@ airline_decision_pred <- predict(airline_decision, newdata = airline_test)
 
 CrossTable(airline_test$satisfaction, airline_decision_pred)
 airline_decision_pred <- as.factor(airline_decision_pred)
-confusionMatrix(airline_test$satisfaction, airline_decision_pred)
+
 
 
 #Kappa Values
