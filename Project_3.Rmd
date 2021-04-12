@@ -66,6 +66,16 @@ airline_factorizednormalized_testlabels <- airline_test_factorized_normalized["s
 
 ### Data Exploration 
 
+```{r}
+
+#Correlations with satisfaction 
+correlations <- as.data.frame(cor(airline_train[sapply(airline_train, function(x) is.numeric(x))])[19,])
+correlations %>% ggplot(aes(x=reorder(rownames(correlations), correlations[,1]), y=correlations[,1])) + 
+geom_bar(stat = 'identity') + ggtitle("Correlations with Satisfaction") + labs(x="Variables", y="Correlation") + theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90))
+
+```
+
+
 ### Regression 
 
 ```{r}
