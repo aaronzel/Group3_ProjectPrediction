@@ -69,10 +69,10 @@ airline_factorizednormalized_testlabels <- airline_test_factorized_normalized["s
 
 ```{r}
 
-#Correlations with satisfaction 
-correlations <- as.data.frame(cor(airline_train[sapply(airline_train, function(x) is.numeric(x))])[19,])
-correlations %>% ggplot(aes(x=reorder(rownames(correlations), correlations[,1]), y=correlations[,1])) + 
-geom_bar(stat = 'identity') + ggtitle("Correlations with Satisfaction") + labs(x="Variables", y="Correlation") + theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90))
+# #Correlations with satisfaction 
+# correlations <- as.data.frame(cor(airline_train[sapply(airline_train, function(x) is.numeric(x))])[19,])
+# #correlations %>% ggplot(aes(x=reorder(rownames(correlations), correlations[,1]), y=correlations[,1])) + 
+# geom_bar(stat = 'identity') + ggtitle("Correlations with Satisfaction") + labs(x="Variables", y="Correlation") + theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90))
 
 ```
 
@@ -124,22 +124,9 @@ airline_decision_pred <- predict(airline_decision, newdata = airline_test)
 
 CrossTable(airline_test$satisfaction, airline_decision_pred)
 airline_decision_pred <- as.factor(airline_decision_pred)
+caret::confusionMatrix(airline_test$satisfaction, airline_decision_pred)
 
 
-
-#Kappa Values
-
-decision_accuracy <- (14242 + 10715)/25976
-decision_sensitivity <- (10715/11403)
-decision_specificity <- (14242/14573)
-decision_precision <- (10715/11046)
-
-#Summary
-
-Model_name <- "Decision Tree"
-
-decision_metrics <- data.frame(Model_name, decision_accuracy, decision_sensitivity, decision_specificity, decision_precision)
-decision_metrics
 ```
 
 
