@@ -17,6 +17,7 @@ library(caret)
 library(gmodels)
 library(InformationValue)
 library(C50)
+library(neuralnet)
 
 airline_train <- read.csv("train.csv")
 airline_test <- read.csv("test.csv")
@@ -39,7 +40,7 @@ airline_test$satisfaction <- as.numeric(as.factor(airline_test$satisfaction))-1
 ```
 **Context:** We are working with the airline dataset which contains various demographics and flight information along with the final satisfaction level.  
 
-**Audience:** The results of our models are useful for airlines in order to optimize their flight experience and lead to maximum satisfaction. 
+**Audience:** The results of our models are useful for airlines in order to optimize their flight experience, lead to maximum satisfaction, and determine which passengers will be satisfied. 
 
 **Key Business Objectives:** What factors are predictive of a satisfied or dissatisfied passenger? How can airlines use this information to improve certain aspects of service? How can airlines predict who to invest more in (dissatisfied passengers)? 
 
@@ -79,8 +80,8 @@ geom_bar(stat = 'identity') + ggtitle("Correlations with Satisfaction") + labs(x
 ### Regression 
 
 ```{r}
-logit_model <- glm(satisfaction ~., data = airline_train, family = "binomial")
-summary(logit_model)
+logit_model1 <- glm(satisfaction ~., data = airline_train, family = "binomial")
+summary(logit_model1)
 
 prediction <- predict(logit_model, newdata = airline_test, type = "response")
 
@@ -96,6 +97,21 @@ prediction <- predict(logit_model, newdata = airline_test, type = "response")
 ### KNN
 
 ### ANN
+
+```{r}
+airlineneuralnet1 <- neuralnet(formula = satisfaction ~ ., data = airline_train_factorized_normalized)
+
+model_results <- compute(airlineneuralnet1, airline_test_factorized_normalized)
+predicted_y <- model_results$net.result
+summary(predicted_y)
+
+model_pred <- predict(airlineneuralnet1, newdata = airline_test_factorized_normalized, type = "response")
+predicted_ANN_results <- ifelse(model_pred >= 0.5, 1, 0) 
+predicted_ANN_results <- as.factor(predicted_ANN_results)
+
+caret::confusionMatrix(predicted_ANN_results, as.factor(airline_factorizednormalized_testlabels$satisfaction))
+```
+
 
 ### Decision Tree 
 
