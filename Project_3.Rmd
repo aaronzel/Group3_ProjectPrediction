@@ -83,7 +83,6 @@ Now, let's take a look at the variables that could have a significant effect on 
 ggplot(data = airline_train_factorized, aes(x = Inflight.wifi.service, y = satisfaction, colour = satisfaction)) + geom_bar(alpha = 0.25) + xlab("Inflight Wifi Service") + ylab("Satisfaction") + ggtitle("Inflight Wifi Service vs Satisfaction") + theme(plot.title = element_text(hjust = 0.5))
 ```
 
-
 ### Regression 
 
 ```{r}
@@ -103,10 +102,15 @@ prediction <- predict(logit_model, newdata = airline_test, type = "response")
 
 ### KNN
 
+```{r}
+
+```
+
+
 ### ANN
 
 ```{r}
-airlineneuralnet1 <- neuralnet(formula = satisfaction ~ ., data = airline_train_factorized_normalized)
+airlineneuralnet1 <- neuralnet(formula = satisfaction ~ ., data = airline_train_factorized_normalized, hidden = 3)
 
 model_results <- compute(airlineneuralnet1, airline_test_factorized_normalized)
 predicted_y <- model_results$net.result
@@ -131,14 +135,20 @@ airline_decision_pred <- predict(airline_decision, newdata = airline_test)
 
 CrossTable(airline_test$satisfaction, airline_decision_pred)
 airline_decision_pred <- as.factor(airline_decision_pred)
-caret::confusionMatrix(airline_test$satisfaction, airline_decision_pred)
-
-
+caret::confusionMatrix(airline_decision_pred, airline_test$satisfaction)
 ```
-
 
 ### SVM 
 
+```{r}
+
+```
+
 ### Combined Model 
+
+```{r}
+
+```
+
 
 ### Conclusion 
