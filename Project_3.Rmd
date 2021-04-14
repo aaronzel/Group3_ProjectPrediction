@@ -80,7 +80,7 @@ The goal of this analysis is to identify opportunities for which metrics this ai
 Now, let's take a look at the variables that could have a significant effect on our response.
 
 ```{r}
-ggplot(data = airline_train_factorized, aes(x = Inflight.wifi.service, y = satisfaction, colour = satisfaction)) + geom_bar(alpha = 0.25) + xlab("Inflight Wifi Service") + ylab("Satisfaction") + ggtitle("Inflight Wifi Service vs Satisfaction") + theme(plot.title = element_text(hjust = 0.5))
+ggplot(data = airline_train_factorized, aes(x = Inflight.wifi.service, y = satisfaction, colour = satisfaction)) + geom_jitter() + xlab("Inflight Wifi Service") + ylab("Satisfaction") + ggtitle("Inflight Wifi Service vs Satisfaction") + theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ### Regression 
