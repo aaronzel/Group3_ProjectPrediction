@@ -82,7 +82,7 @@ airline_factorizednormalized_testlabels <- airline_test_factorized_normalized["s
 logit_model1 <- glm(satisfaction ~., data = airline_train, family = "binomial")
 summary(logit_model1)
 
-prediction <- predict(logit_model, newdata = airline_test, type = "response")
+prediction <- predict(logit_model1, newdata = airline_test, type = "response")
 
 #optimal <- optimalCutoff(airline_test$satisfaction, prediction)[1]
 
@@ -102,8 +102,8 @@ prediction <- predict(logit_model, newdata = airline_test, type = "response")
 
 ### ANN
 
-```{r}
-airlineneuralnet1 <- neuralnet(formula = satisfaction ~ ., data = airline_train_factorized_normalized, hidden = 3)
+```{r cache = TRUE}
+airlineneuralnet1 <- neuralnet(formula = satisfaction ~ ., data = airline_train_factorized_normalized, hidden = 2)
 
 model_results <- compute(airlineneuralnet1, airline_test_factorized_normalized)
 predicted_y <- model_results$net.result
@@ -113,7 +113,7 @@ model_pred <- predict(airlineneuralnet1, newdata = airline_test_factorized_norma
 predicted_ANN_results <- ifelse(model_pred >= 0.5, 1, 0) 
 predicted_ANN_results <- as.factor(predicted_ANN_results)
 
-caret::confusionMatrix(predicted_ANN_results, as.factor(airline_factorizednormalized_testlabels$satisfaction))
+caret::confusionMatrix(predicted_ANN_results, as.factor(airline_factorizednormalized_testlabels$satisfaction)) #WHY $ HERE??
 ```
 
 
