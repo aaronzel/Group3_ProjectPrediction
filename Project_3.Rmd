@@ -18,6 +18,7 @@ library(gmodels)
 library(InformationValue)
 library(C50)
 library(neuralnet)
+library(InformationValue)
 
 airline_train <- read.csv("train.csv")
 airline_test <- read.csv("test.csv")
@@ -117,12 +118,13 @@ predicted_y <- model_results$net.result
 summary(predicted_y)
 
 model_pred <- predict(airlineneuralnet1, newdata = airline_test_factorized_normalized, type = "response")
-predicted_ANN_results <- ifelse(model_pred >= 0.5, 1, 0) 
-predicted_ANN_results <- as.factor(predicted_ANN_results)
+cutoff <- optimalCutoff(airline_test_factorized_normalized$satisfaction, model_pred)[1]
+predicted_ANN_results <- ifelse(model_pred > cutoff, 1, 0) 
 
-caret::confusionMatrix(predicted_ANN_results, as.factor(airline_factorizednormalized_testlabels$satisfaction)) #WHY $ HERE??
+caret::confusionMatrix(as.factor(predicted_ANN_results), as.factor(airline_factorizednormalized_testlabels$satisfaction)) #WHY $ HERE??
 ```
 
+The neural net algorithm provides a prediction of satisfaction by using nodes that model the neurons in our brain. To optimize this model, I adjusted the number of hidden nodes and the probability cutoff for a yes (1) prediction. I found that adding hidden nodes helped with accuracy. Going to 2 hidden nodes increased the accuracy to 91%. However, adding any more hidden nodes than 2 proved to be too computationally demanding for the computer to execute. Thereafter, I employed the optimalCutoff function to determine that a cutoff of 41.9% was the optimal value for maximizing accuracy. At this cutoff, sensitivity remains high too. 
 
 ### Decision Tree 
 
