@@ -1,6 +1,6 @@
 ---
 title: "Project_3"
-author: "Aaron Zelmanov"
+author: "Aaron Zelmanov, Muhammad Hafizudeen Mohamad Saman"
 date: "3/29/2021"
 output:
   html_document:
