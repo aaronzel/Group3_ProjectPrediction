@@ -147,8 +147,7 @@ Now, let's predict the data using Support Vectors Machine (SVM). SVM is a superv
 ```{r}
 library(kernlab)
 #building SVM model
-airline_train2 <- airline_train[1:10,]
-svm_model1 <- ksvm(satisfaction ~., data = airline_train2, kernel = "vanilladot", scaled = TRUE)
+svm_model1 <- ksvm(as.factor(satisfaction) ~., data = airline_train, kernel = "vanilladot", scaled = TRUE)
 svm_model1
 
 #making predictions
@@ -160,6 +159,7 @@ summary(predictions_svm)
 
 #table(predictions_svm, airline_test$satisfaction)
 #confusionMatrix(as.factor(predictions_svm), as.factor(airline_test$satisfaction))
+#fix NA values to get this
 ```
 
 ### Combined Model 
