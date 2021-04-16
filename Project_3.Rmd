@@ -25,6 +25,7 @@ airline_test <- read.csv("test.csv")
 
 airline_train_corr <- airline_train
 
+
 airline_train$X <- NULL
 airline_train$id <- NULL
 airline_train$Gender <- as.factor(airline_train$Gender)
@@ -32,6 +33,9 @@ airline_train$Customer.Type <- as.factor(airline_train$Customer.Type)
 airline_train$Type.of.Travel <- as.factor(airline_train$Type.of.Travel)
 airline_train$Class <- as.factor(airline_train$Class)
 airline_train$satisfaction <- as.numeric(as.factor(airline_train$satisfaction))-1
+summary(is.na(airline_train))
+#na.omit(airline_train$Arrival.Delay.in.Minutes  )
+mean(airline_train$Arrival.Delay.in.Minutes)
 
 airline_test$X <- NULL
 airline_test$id <- NULL
@@ -40,6 +44,10 @@ airline_test$Customer.Type <- as.factor(airline_test$Customer.Type)
 airline_test$Type.of.Travel <- as.factor(airline_test$Type.of.Travel)
 airline_test$Class <- as.factor(airline_test$Class)
 airline_test$satisfaction <- as.numeric(as.factor(airline_test$satisfaction))-1
+
+airline_train$Arrival.Delay.in.Minutes[is.na(airline_train$Arrival.Delay.in.Minutes)] <- mean(airline_train$Arrival.Delay.in.Minutes, na.rm = TRUE)
+
+airline_test$Arrival.Delay.in.Minutes[is.na(airline_test$Arrival.Delay.in.Minutes)] <- mean(airline_test$Arrival.Delay.in.Minutes, na.rm = TRUE)
 
 ```
 **Context:** We are working with the airline dataset which contains various demographics and flight information along with the final satisfaction level.  
@@ -216,20 +224,24 @@ Now, let's predict the data using Support Vectors Machine (SVM). SVM is a superv
 
 ```{r}
 library(kernlab)
+
 #building SVM model
-svm_model1 <- ksvm(as.factor(satisfaction) ~., data = airline_train, kernel = "vanilladot", scaled = TRUE)
+airline_train2 <- airline_train[1:10,]
+svm_model1 <- ksvm(as.factor(satisfaction) ~., data = airline_train2, kernel = "vanilladot", scaled = TRUE)
 svm_model1
 
 #making predictions
 predictions_svm <- predict(svm_model1, airline_test)
-
 #evaluating model performance
 head(predictions_svm)
 summary(predictions_svm)
 
 #table(predictions_svm, airline_test$satisfaction)
-#confusionMatrix(as.factor(predictions_svm), as.factor(airline_test$satisfaction))
+
+caret::confusionMatrix(as.factor(predictions_svm), as.factor(airline_test$satisfaction))
 #fix NA values to get this
+sum(is.na(airline_test$satisfaction))
+summary(airline_test)
 ```
 
 ### Combined Model 
