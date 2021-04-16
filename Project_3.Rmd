@@ -144,13 +144,13 @@ summary(logit_model1)
 
 prediction <- predict(logit_model1, newdata = airline_test, type = "response")
 
-#optimal <- optimalCutoff(airline_test$satisfaction, prediction)[1]
+optimal <- optimalCutoff(airline_test$satisfaction, prediction)[1]
 
-#binary_predictions <- ifelse(prediction > optimal, 1, 0)
+binary_predictions <- ifelse(prediction > optimal, 1, 0)
 
 #airline_test_labels <- airline_test[airline_test, "satisfaction"]
 
-#CrossTable(x = airline_test$satisfaction, y = binary_predictions, prop.chisq = FALSE)
+caret::confusionMatrix(as.factor(binary_predictions), as.factor(airline_test$satisfaction))
 ```
 
 ### KNN
