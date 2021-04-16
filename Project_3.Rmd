@@ -70,11 +70,6 @@ airline_test_factorized<- as.data.frame(model.matrix(~.-1, data = airline_test))
 airline_test_factorized_normalized <- as.data.frame(lapply(airline_test_factorized[1:ncol(airline_test_factorized)], normalize))
 airline_factorizednormalized_testlabels <- airline_test_factorized_normalized["satisfaction"]
 
-# DO WE NEED TO ADD THIS 
-# airline_test_factorized_normalized$satisfaction <- NULL 
-# airline_train_factorized_normalized$satisfaction <- NULL 
-
-
 ```
 
 ### Data Exploration 
@@ -155,6 +150,11 @@ prediction <- predict(logit_model1, newdata = airline_test, type = "response")
 ```{r}
 set.seed(12345)
 
+
+# DO WE NEED TO ADD THIS 
+airline_test_factorized_normalized$satisfaction <- NULL 
+ airline_train_factorized_normalized$satisfaction <- NULL 
+
 # Run KNN command 
 library(class)
 library(caret)
@@ -162,10 +162,12 @@ library(caret)
 # Determine k 
 sqrt(nrow(airline_train_factorized_normalized))
 
-str(airline_train_factorized_normalized)
-str(airline_factorizednormalized_trainlabels)
 
-satifaction_test_pred_knn <- knn(train = airline_train_factorized_normalized, test = airline_test_factorized_normalized, cl = airline_factorizednormalized_trainlabels, k = 321)
+summary(airline_train_factorized_normalized)
+summary(airline_test_factorized_normalized)
+summary(airline_factorizednormalized_trainlabels)
+
+satifaction_test_pred_knn <- knn(train = airline_train_factorized_normalized, test = airline_test_factorized_normalized, cl = airline_factorizednormalized_trainlabels$satisfaction, k = 321)
 
 # Cross table 
 CrossTable(x = airline_factorizednormalized_testlabels, y = satifaction_test_pred_knn, 
