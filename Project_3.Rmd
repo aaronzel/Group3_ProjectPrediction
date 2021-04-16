@@ -226,7 +226,7 @@ Now, let's predict the data using Support Vectors Machine (SVM). SVM is a superv
 library(kernlab)
 
 #building SVM model
-airline_train2 <- airline_train[1:10,]
+airline_train2 <- airline_train[1:10000,]
 svm_model1 <- ksvm(as.factor(satisfaction) ~., data = airline_train2, kernel = "vanilladot", scaled = TRUE)
 svm_model1
 
@@ -239,9 +239,6 @@ summary(predictions_svm)
 #table(predictions_svm, airline_test$satisfaction)
 
 caret::confusionMatrix(as.factor(predictions_svm), as.factor(airline_test$satisfaction))
-#fix NA values to get this
-sum(is.na(airline_test$satisfaction))
-summary(airline_test)
 ```
 
 ### Combined Model 
