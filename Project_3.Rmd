@@ -23,6 +23,8 @@ library(InformationValue)
 airline_train <- read.csv("train.csv")
 airline_test <- read.csv("test.csv")
 
+airline_train_corr <- airline_train
+
 airline_train$X <- NULL
 airline_train$id <- NULL
 airline_train$Gender <- as.factor(airline_train$Gender)
@@ -85,12 +87,50 @@ The goal of this analysis is to identify opportunities for which metrics this ai
 #correlations %>% ggplot(aes(x=reorder(rownames(correlations), correlations[,1]), y=correlations[,1])) + 
 #geom_bar(stat = 'identity') + ggtitle("Correlations with Satisfaction") + labs(x="Variables", y="Correlation") + theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90))
 
+#Female = 1, Male = 2
+airline_train_corr$Gender <- as.integer(airline_train$Gender)
+airline_train_corr$Customer.Type <- as.integer(airline_train$Customer.Type)
+airline_train_corr$Type.of.Travel <- as.integer(airline_train$Type.of.Travel)
+airline_train_corr$Class <- as.integer(airline_train$Class)
+airline_train_corr$satisfaction <- as.integer(airline_train$satisfaction)
+
+airline_train_corr$X <- NULL
+airline_train_corr$id <- NULL
+
+GGally::ggcorr(airline_train_corr, nbreaks = 4, palette = "RdGy", label = TRUE, label_size = 2, hjust = 1, label_color = "white")
 ```
 
 Now, let's take a look at the variables that could have a significant effect on our response.
 
 ```{r}
-ggplot(data = airline_train_factorized, aes(x = Inflight.wifi.service, y = satisfaction, colour = satisfaction)) + geom_jitter() + xlab("Inflight Wifi Service") + ylab("Satisfaction") + ggtitle("Inflight Wifi Service vs Satisfaction") + theme(plot.title = element_text(hjust = 0.5))
+mean_inflight_wifi <- mean(airline_train$Inflight.wifi.service)
+mean_departure_arrival <- mean(airline_train$Departure.Arrival.time.convenient)
+mean_ease <- mean(airline_train$Ease.of.Online.booking)
+mean_gate <- mean(airline_train$Gate.location)
+mean_food_drink <- mean(airline_train$Food.and.drink)
+mean_online_board <- mean(airline_train$Online.boarding)
+mean_seat <- mean(airline_train$Seat.comfort)
+mean_inflight_entertain <- mean(airline_train$Inflight.entertainment)
+mean_onboard_service <- mean(airline_train$On.board.service)
+mean_leg_room <- mean(airline_train$Leg.room.service)
+mean_baggage <- mean(airline_train$Baggage.handling)
+mean_checkin <- mean(airline_train$Checkin.service)
+mean_inflight_service <- mean(airline_train$Inflight.service)
+mean_cleanliness <- mean(airline_train$Cleanliness)
+mean_df <- data.frame(mean_inflight_wifi, mean_departure_arrival, mean_ease, mean_gate, mean_food_drink, mean_online_board, mean_seat, mean_inflight_entertain, mean_onboard_service, mean_leg_room, mean_baggage, mean_checkin, mean_inflight_service, mean_cleanliness)
+
+colnames(mean_df) <- c("InFlight Wifi Service", "Departure Arrival Time Convenient", "Ease of Online Booking", "Gate Location", "Food & Drink", "Online Boarding", "Seat Comfort", "Inflight Entertainment", "On-board Service", "Leg Room Service", "Baggage Handling", "Check-in Service", "Inflight Service", "Cleanliness")
+
+mean_df
+```
+
+After calculating the mean ratings for 14 different customer variables, three variables automatically stand out as those that the airline needs to focus on: Inflight Wifi Service, Ease of Online Booking, and Gate Location. If it could improve on these three, the more likely more customers will be satisfied with their experiences.
+
+Let's dive deeper into these three variables and see their relationship with satisfaction.
+
+```{r}
+wifi_service_plot <- ggplot(data=airline_train, aes(x=Inflight.wifi.service, y=satisfaction)) + geom_jitter() + xlab("Inflight Wifi Service") + ylab("Satisfaction") + ggtitle("Inflight Wifi Service vs Satisfaction") + theme(plot.title = element_text(hjust = 0.5))
+wifi_service_plot
 ```
 
 ### Regression 
