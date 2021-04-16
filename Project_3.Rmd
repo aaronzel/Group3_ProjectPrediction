@@ -1,6 +1,6 @@
 ---
 title: "Project_3"
-author: "Aaron Zelmanov, Muhammad Hafizudeen Mohamad Saman"
+author: "Aaron Zelmanov, Muhammad Hafizudeen Mohamad Saman, Nakul Chadha, Kendall Cohen, Michael Geraci"
 date: "3/29/2021"
 output:
   html_document:
@@ -144,6 +144,7 @@ caret::confusionMatrix(airline_decision_pred, airline_test$satisfaction)
 
 ```{r}
 
+svm_model1 <- ksvm(satisfaction ~., data = airline_train, kernel = "vanilladot")
 ```
 
 ### Combined Model 
