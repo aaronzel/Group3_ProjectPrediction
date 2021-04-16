@@ -150,24 +150,15 @@ prediction <- predict(logit_model1, newdata = airline_test, type = "response")
 ```{r}
 set.seed(12345)
 
-
-# DO WE NEED TO ADD THIS 
-airline_test_factorized_normalized$satisfaction <- NULL 
- airline_train_factorized_normalized$satisfaction <- NULL 
-
-# Run KNN command 
-library(class)
-library(caret)
+knn_train <- airline_train_factorized_normalized
+knn_test <- airline_test_factorized_normalized
+knn_train$satisfaction <- NULL
+knn_test$satisfaction <- NULL
 
 # Determine k 
-sqrt(nrow(airline_train_factorized_normalized))
+kValue = sqrt(nrow(airline_train_factorized_normalized))
 
-
-summary(airline_train_factorized_normalized)
-summary(airline_test_factorized_normalized)
-summary(airline_factorizednormalized_trainlabels)
-
-satifaction_test_pred_knn <- knn(train = airline_train_factorized_normalized, test = airline_test_factorized_normalized, cl = airline_factorizednormalized_trainlabels$satisfaction, k = 321)
+satifaction_test_pred_knn <- knn(train = knn_train, test = knn_test, cl = airline_factorizednormalized_trainlabels$satisfaction, k = 100)
 
 # Cross table 
 CrossTable(x = airline_factorizednormalized_testlabels, y = satifaction_test_pred_knn, 
