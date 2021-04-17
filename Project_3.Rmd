@@ -19,6 +19,7 @@ library(InformationValue)
 library(C50)
 library(neuralnet)
 library(InformationValue)
+library(dplyr)
 
 airline_train <- read.csv("train.csv")
 airline_test <- read.csv("test.csv")
@@ -40,7 +41,6 @@ airline_test$Customer.Type <- as.factor(airline_test$Customer.Type)
 airline_test$Type.of.Travel <- as.factor(airline_test$Type.of.Travel)
 airline_test$Class <- as.factor(airline_test$Class)
 airline_test$satisfaction <- as.numeric(as.factor(airline_test$satisfaction))-1
-
 ```
 **Context:** We are working with the airline dataset which contains various demographics and flight information along with the final satisfaction level.  
 
@@ -69,7 +69,6 @@ airline_factorizednormalized_trainlabels <- airline_train_factorized_normalized[
 airline_test_factorized<- as.data.frame(model.matrix(~.-1, data = airline_test))
 airline_test_factorized_normalized <- as.data.frame(lapply(airline_test_factorized[1:ncol(airline_test_factorized)], normalize))
 airline_factorizednormalized_testlabels <- airline_test_factorized_normalized["satisfaction"]
-
 ```
 
 ### Data Exploration 
@@ -78,9 +77,9 @@ The goal of this analysis is to identify opportunities for which metrics this ai
 
 ```{r}
 #Correlations with satisfaction 
-#correlations <- as.data.frame(cor(airline_train[sapply(airline_train, function(x) is.numeric(x))])[19,])
-#correlations %>% ggplot(aes(x=reorder(rownames(correlations), correlations[,1]), y=correlations[,1])) + 
-#geom_bar(stat = 'identity') + ggtitle("Correlations with Satisfaction") + labs(x="Variables", y="Correlation") + theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90))
+correlations <- as.data.frame(cor(airline_train[sapply(airline_train, function(x) is.numeric(x))])[19,])
+correlations %>% ggplot(aes(x=reorder(rownames(correlations), correlations[,1]), y=correlations[,1])) + 
+geom_bar(stat = 'identity') + ggtitle("Correlations with Satisfaction") + labs(x="Variables", y="Correlation") + theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90))
 
 #Female = 1, Male = 2
 airline_train_corr$Gender <- as.integer(airline_train$Gender)
@@ -133,21 +132,17 @@ wifi_service_plot
 ```{r}
 logit_model1 <- glm(satisfaction ~., data = airline_train, family = "binomial")
 summary(logit_model1)
-
 prediction <- predict(logit_model1, newdata = airline_test, type = "response")
 
-#optimal <- optimalCutoff(airline_test$satisfaction, prediction)[1]
+optimal <- optimalCutoff(airline_test$satisfaction, prediction)[1]
 
-#binary_predictions <- ifelse(prediction > optimal, 1, 0)
-
-#airline_test_labels <- airline_test[airline_test, "satisfaction"]
-
-#CrossTable(x = airline_test$satisfaction, y = binary_predictions, prop.chisq = FALSE)
+binary_predictions <- ifelse(prediction > optimal, 1, 0)
+CrossTable(x = airline_test$satisfaction, y = binary_predictions, prop.chisq = FALSE)
 ```
 
 ### KNN
 
-```{r}
+```{r, cache = TRUE}
 set.seed(12345)
 
 knn_train <- airline_train_factorized_normalized
@@ -158,23 +153,18 @@ knn_test$satisfaction <- NULL
 # Determine k 
 kValue = sqrt(nrow(airline_train_factorized_normalized))
 
-satifaction_test_pred_knn <- knn(train = knn_train, test = knn_test, cl = airline_factorizednormalized_trainlabels$satisfaction, k = 100)
-
-# Cross table 
-CrossTable(x = airline_factorizednormalized_testlabels, y = satifaction_test_pred_knn, 
-           prop.chisq=FALSE)
+satifaction_test_pred_knn <- knn(train = knn_train, test = knn_test, cl = airline_factorizednormalized_trainlabels$satisfaction, k = 10)
 
 # Confusion Matrix
-confusionMatrix(as.factor(satifaction_test_pred_knn), as.factor(airline_factorizednormalized_testlabels))
+caret::confusionMatrix(as.factor(satifaction_test_pred_knn), as.factor(airline_factorizednormalized_testlabels$satisfaction))
 ```
-
 
 ### ANN
 
-```{r cache = TRUE}
+```{r, cache = TRUE}
 airlineneuralnet1 <- neuralnet(formula = satisfaction ~ ., data = airline_train_factorized_normalized, hidden = 2)
 
-model_results <- compute(airlineneuralnet1, airline_test_factorized_normalized)
+model_results <- neuralnet::compute(airlineneuralnet1, airline_test_factorized_normalized)
 predicted_y <- model_results$net.result
 summary(predicted_y)
 
@@ -226,7 +216,12 @@ summary(predictions_svm)
 ### Combined Model 
 
 ```{r}
+combinedTable1 <- data.frame(ANN = as.numeric(predicted_ANN_results), kNN = as.numeric(satifaction_test_pred_knn)-1, logistic = as.numeric(binary_predictions), SVM = as.numeric(predictions_svm))
 
+combinedTable1$sum <- rowSums(combinedTable1)
+combinedTable1$combinedPredictions <- ifelse(combinedTable1$sum >= 2, 1, 0) 
+
+caret::confusionMatrix(combinedTable1$combinedPredictions, airline_test$satisfaction)
 ```
 
 
