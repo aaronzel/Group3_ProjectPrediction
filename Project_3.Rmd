@@ -10,7 +10,7 @@ output:
 
 ### Introduction 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 library(class)
 library(caret)
@@ -197,8 +197,6 @@ caret::confusionMatrix(airline_decision_pred, airline_test$satisfaction)
 
 ### SVM 
 
-Now, let's predict the data using Support Vectors Machine (SVM). SVM is a supervised learning method that tries to draw a boundary between two levels of response while maximizing margin and minimizing the distance of the misclassified errors from the best hyperplane (or the separating boundary). There are many different types of boundaries, each type corresponds to a different kernel, which is a function that computes the inner product between our predictors. The most popular kernals are the Radial Basis kernel, Polynomial kernel, and Linear kernel. However, non-linear kernals are computationally expensive to run, so we are going to run only the linear kernal. Note that the linear kernal corresponds to the parameter option "vanilladot" in kernlab library.
-
 ```{r}
 #building SVM model
 svm_model1 <- ksvm(as.factor(satisfaction) ~., data = airline_train, kernel = "vanilladot", scaled = TRUE)
@@ -212,8 +210,11 @@ predictions_svm <- predict(svm_model1, airline_test)
 caret::confusionMatrix(as.factor(predictions_svm), as.factor(airline_test$satisfaction))
 ```
 
+SVM is a supervised learning method that tries to draw a boundary between two levels of response while maximizing margin and minimizing the distance of the misclassified errors from the best hyperplane (or the separating boundary). There are many different types of boundaries, each type corresponds to a different kernel, which is a function that computes the inner product between our predictors. The most popular kernals are the Radial Basis kernel, Polynomial kernel, and Linear kernel. However, non-linear kernals are computationally expensive to run, so we are going to run only the linear kernal. Note that the linear kernal corresponds to the parameter option "vanilladot" in kernlab library.
+
 ### Combined Model 
 
+**Combined Model**
 ```{r}
 combinedTable1 <- data.frame(ANN = as.numeric(predicted_ANN_results), kNN = as.numeric(satifaction_test_pred_knn), logistic = as.numeric(binary_predictions), DT = as.numeric(airline_decision_pred), SVM = as.numeric(predictions_svm))
 
@@ -221,6 +222,11 @@ combinedTable1$sum <- rowSums(combinedTable1)
 combinedTable1$combinedPredictions <- ifelse(combinedTable1$sum >= 4, 1, 0) 
 
 caret::confusionMatrix(as.factor(combinedTable1$combinedPredictions), as.factor(airline_test$satisfaction))
+```
+
+**Stacked Model**
+```{r}
+
 ```
 
 
