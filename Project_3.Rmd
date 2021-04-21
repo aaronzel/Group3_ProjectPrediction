@@ -140,6 +140,24 @@ wifi_service_plot <- ggplot(data=airline_train, aes(x=Inflight.wifi.service, y=s
 wifi_service_plot
 ```
 
+```{r}
+GGally::ggpairs(
+  airline_train, 
+  columns = c("Inflight.wifi.service", "Ease.of.Online.booking", "Gate.location"), 
+  columnLabels = c("Inflight Wifi Service", "Ease of Online Booking", "Gate Location"),
+  lower = list(
+    continuous = "smooth"
+  ),
+  diag = list(
+    continuous = "smooth"
+  ),
+  upper = list(
+    continuous = "smooth"
+  )
+)
+```
+
+
 **ADD OTHER 2 GRAPHS HERE**
 
 
