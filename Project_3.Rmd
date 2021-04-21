@@ -10,7 +10,7 @@ output:
 
 ### Introduction 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache=TRUE)
 library(ggplot2)
 library(class)
 library(caret)
@@ -83,7 +83,13 @@ The goal of this analysis is to identify opportunities for which metrics this ai
 correlations <- as.data.frame(cor(airline_train[sapply(airline_train, function(x) is.numeric(x))])[19,])
 correlations %>% ggplot(aes(x=reorder(rownames(correlations), correlations[,1]), y=correlations[,1])) + 
 geom_bar(stat = 'identity') + ggtitle("Correlations with Satisfaction") + labs(x="Variables", y="Correlation") + theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90))
+```
 
+*The correlations graph above shows the correlations between variables in the dataset and satisfaction. Online boarding, in-flight entertainment, and seat comfort seem to be the most strongly correlated with satisfaction. This makes sense because these are some of they key features of a good flight. As a note, satisfaction appears as one of the variables and predictably is 100% correlated with itself. Interestingly, some of the negative aspects of a flight aren't highly negatively correlated: delays, inconvenient departure times, etc* 
+<br />
+<br />
+
+```{r, warning=FALSE}
 #Female = 1, Male = 2
 airline_train_corr$Gender <- as.integer(airline_train$Gender)
 airline_train_corr$Customer.Type <- as.integer(airline_train$Customer.Type)
@@ -94,11 +100,14 @@ airline_train_corr$satisfaction <- as.integer(airline_train$satisfaction)
 airline_train_corr$X <- NULL
 airline_train_corr$id <- NULL
 
-GGally::ggcorr(airline_train_corr, nbreaks = 4, palette = "RdGy", label = TRUE, label_size = 2, hjust = 1, label_color = "white")
+GGally::ggcorr(airline_train_corr, nbreaks = 4, palette = "RdGy", label = TRUE, label_size = 2, hjust = 1, label_color = "white") + ggtitle("Correlations") + theme(plot.title = element_text(hjust = 0.5))
 ```
 
-Now, let's take a look at the variables that could have a significant effect on our response.
+*The correlations chart above shows us the correlations between all variables, identifying those with strong, weak, and perhaps no correlations*
 
+<br />
+<br />
+Now, let's take a look at the variables that could have a significant effect on our response.
 ```{r}
 mean_inflight_wifi <- mean(airline_train$Inflight.wifi.service)
 mean_departure_arrival <- mean(airline_train$Departure.Arrival.time.convenient)
@@ -121,8 +130,9 @@ colnames(mean_df) <- c("InFlight Wifi Service", "Departure Arrival Time Convenie
 mean_df
 ```
 
-After calculating the mean ratings for 14 different customer variables, three variables automatically stand out as those that the airline needs to focus on: Inflight Wifi Service, Ease of Online Booking, and Gate Location. If it could improve on these three, the more likely more customers will be satisfied with their experiences.
-
+*After calculating the mean customer ratings for 14 different variables (services, timing, locations, accessibility, etc), three variables automatically stand out as those that the airline needs to focus on: Inflight Wifi Service, Ease of Online Booking, and Gate Location. If it could improve on these three, the more likely more customers will be satisfied with their experiences.*
+<br />
+<br />
 Let's dive deeper into these three variables and see their relationship with satisfaction.
 
 ```{r}
@@ -130,21 +140,38 @@ wifi_service_plot <- ggplot(data=airline_train, aes(x=Inflight.wifi.service, y=s
 wifi_service_plot
 ```
 
+**ADD OTHER 2 GRAPHS HERE**
+
+
 ### Regression 
 
+**Logistic Regression Summaries**
 ```{r}
 logit_model1 <- glm(satisfaction ~., data = airline_train, family = "binomial")
 summary(logit_model1)
 
-prediction <- predict(logit_model1, newdata = airline_test, type = "response")
+#logit_model2 <- step (logit_model1)
+#summary(logit_model2)
+
+logit_model3 <- glm(satisfaction ~ . - Flight.Distance, data = airline_train, family = "binomial")
+summary(logit_model3)
+```
+<br />
+<br />
+**Regression Confusion Matrix and Statistics**
+```{r}
+prediction <- predict(logit_model3, newdata = airline_test, type = "response")
 optimal <- optimalCutoff(airline_test$satisfaction, prediction)[1]
 binary_predictions <- ifelse(prediction > optimal, 1, 0)
 
 caret::confusionMatrix(as.factor(binary_predictions), as.factor(airline_test$satisfaction))
 ```
 
+The logistic regression provides a prediction of satisfaction by using the log odds ratio. The model above achieved an accuracy of 87.3%, sensitivity of 91.4%, and Kappa of 0.74. This shows that the model is helpful in predicting customer satisfaction, along with highlighting the particular areas that impact satisfaction the most. We also optimized the model by using the optimalCutoff function for predicting satisfied (1) or not satisfied (0). While accuracy could be higher, the errors in this model are skewed more towards false negatives than false positives, which is also better because we'd rather not miss dissatisfied customers by thinking they were satisfied when inn reality they were not. Since all variables are significant (besides flight distance), this also means they are all predictive. According to our model, some of the variables that have the highest positive impact on satisfaction are: loyal customers and online boarding, whereas some of the variables that have the most negative impact on satisfaction are: personal travelers and economy/economy plus travelers. Perhaps this means that the airline needs to focus more on these customers and their amenities to boost satisfaction.
+
 ### KNN
 
+**KNN Confusion Matrix and Statistics**
 ```{r, cache = TRUE}
 set.seed(12345)
 
@@ -162,14 +189,16 @@ satifaction_test_pred_knn <- knn(train = knn_train, test = knn_test, cl = airlin
 caret::confusionMatrix(as.factor(satifaction_test_pred_knn), as.factor(airline_factorizednormalized_testlabels$satisfaction))
 ```
 
+**ADD MODEL TUNING HERE?**
+
 ### ANN
 
+**ANN Confusion Matrix and Statistics**
 ```{r, cache = TRUE}
-airlineneuralnet1 <- neuralnet(formula = satisfaction ~ ., data = airline_train_factorized_normalized)
+airlineneuralnet1 <- neuralnet(formula = satisfaction ~ ., data = airline_train_factorized_normalized, hidden = 2, stepmax = 10000000000000000)
 
 model_results <- neuralnet::compute(airlineneuralnet1, airline_test_factorized_normalized)
 predicted_y <- model_results$net.result
-summary(predicted_y)
 
 model_pred <- predict(airlineneuralnet1, newdata = airline_test_factorized_normalized, type = "response")
 cutoff <- optimalCutoff(airline_test_factorized_normalized$satisfaction, model_pred)[1]
@@ -178,10 +207,11 @@ predicted_ANN_results <- ifelse(model_pred > cutoff, 1, 0)
 caret::confusionMatrix(as.factor(predicted_ANN_results), as.factor(airline_factorizednormalized_testlabels$satisfaction))
 ```
 
-The neural net algorithm provides a prediction of satisfaction by using nodes that model the neurons in our brain. To optimize this model, I adjusted the number of hidden nodes and the probability cutoff for a yes (1) prediction. I found that adding hidden nodes helped with accuracy. Going to 2 hidden nodes increased the accuracy to 91%. However, adding any more hidden nodes than 2 proved to be too computationally demanding for the computer to execute. Thereafter, I employed the optimalCutoff function to determine that a cutoff of 41.9% was the optimal value for maximizing accuracy. At this cutoff, sensitivity remains high too. 
+The neural net algorithm provides a prediction of satisfaction by using nodes that model the neurons in our brain. To optimize this model, we adjusted the number of hidden nodes and the probability cutoff for a satisfied (1) prediction. We found that adding hidden nodes helped with accuracy. Going to 2 hidden nodes increased the accuracy to 91%. However, adding any more hidden nodes than 2 proved to be too computationally demanding for the computer to execute. Thereafter, we employed the optimalCutoff function to determine that a cutoff of 41.9% was the optimal value for maximizing accuracy. At this cutoff, sensitivity remains high too. This model is also advantageous in its distribution of errors as it is skewed towards false negatives over false positives. While this model performs well, it is more computationally demannding thann KNN, despite providing similar results. 
 
 ### Decision Tree 
 
+**Decision Tree Confusion Matrix and Statistics**
 ```{r}
 airline_test$satisfaction <- as.factor(airline_test$satisfaction)
 airline_train$satisfaction <- as.factor(airline_train$satisfaction)
@@ -189,7 +219,7 @@ airline_train$satisfaction <- as.factor(airline_train$satisfaction)
 airline_decision <- C5.0(satisfaction ~ ., data = airline_train)
 airline_decision_pred <- predict(airline_decision, newdata = airline_test)
 
-CrossTable(airline_test$satisfaction, airline_decision_pred)
+#CrossTable(airline_test$satisfaction, airline_decision_pred)
 airline_decision_pred <- as.factor(airline_decision_pred)
 
 caret::confusionMatrix(airline_decision_pred, airline_test$satisfaction)
@@ -197,7 +227,8 @@ caret::confusionMatrix(airline_decision_pred, airline_test$satisfaction)
 
 ### SVM 
 
-```{r}
+**SVM Confusion Matrix and Statistics**
+```{r, warning=FALSE}
 #building SVM model
 svm_model1 <- ksvm(as.factor(satisfaction) ~., data = airline_train, kernel = "vanilladot", scaled = TRUE)
 
@@ -212,9 +243,9 @@ caret::confusionMatrix(as.factor(predictions_svm), as.factor(airline_test$satisf
 
 SVM is a supervised learning method that tries to draw a boundary between two levels of response while maximizing margin and minimizing the distance of the misclassified errors from the best hyperplane (or the separating boundary). There are many different types of boundaries, each type corresponds to a different kernel, which is a function that computes the inner product between our predictors. The most popular kernals are the Radial Basis kernel, Polynomial kernel, and Linear kernel. However, non-linear kernals are computationally expensive to run, so we are going to run only the linear kernal. Note that the linear kernal corresponds to the parameter option "vanilladot" in kernlab library.
 
-### Combined Model 
+### Combined Models 
 
-**Combined Model**
+**Combined Model Confusion Matrix and Statistics**
 ```{r}
 combinedTable1 <- data.frame(ANN = as.numeric(predicted_ANN_results), kNN = as.numeric(satifaction_test_pred_knn), logistic = as.numeric(binary_predictions), DT = as.numeric(airline_decision_pred), SVM = as.numeric(predictions_svm))
 
@@ -224,7 +255,7 @@ combinedTable1$combinedPredictions <- ifelse(combinedTable1$sum >= 4, 1, 0)
 caret::confusionMatrix(as.factor(combinedTable1$combinedPredictions), as.factor(airline_test$satisfaction))
 ```
 
-**Stacked Model**
+**Stacked ModelConfusion Matrix and Statistics**
 ```{r}
 
 ```
