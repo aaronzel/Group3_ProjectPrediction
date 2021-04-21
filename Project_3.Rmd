@@ -263,7 +263,7 @@ caret::confusionMatrix(as.factor(predictions_svm), as.factor(airline_test_factor
 
 Because running SVM model in such a huge dataset consumes a lot of computational resources, we decided to run it only once and save the result in a file. This way, knitting the file would not take too much time because we only need to load the result instead of running the model again.
 
-As we can see in the result above, the accuracy for this model is 87.38%. 
+As we can see in the result above, the SVM model achieved an accuracy of 87.3%, sensitivity of 92.3%, and Kappa of 0.741, which is reasonable, but performs worse in comparison to Decision Tree model or ANN. However, the incorrect prediction skewed more towards false negative, which is good since we want to underestimate the satisfaction of the customer so that we can work harder to improve the our service.
 
 ### Combined Models 
 
