@@ -243,6 +243,10 @@ caret::confusionMatrix(as.factor(predictions_svm), as.factor(airline_test$satisf
 
 SVM is a supervised learning method that tries to draw a boundary between two levels of response while maximizing margin and minimizing the distance of the misclassified errors from the best hyperplane (or the separating boundary). There are many different types of boundaries, each type corresponds to a different kernel, which is a function that computes the inner product between our predictors. The most popular kernals are the Radial Basis kernel, Polynomial kernel, and Linear kernel. However, non-linear kernals are computationally expensive to run, so we are going to run only the linear kernal. Note that the linear kernal corresponds to the parameter option "vanilladot" in kernlab library.
 
+Because running SVM model in such a huge dataset consumes a lot of computational resources, we decided to run it only once and save the result in a file. This way, knitting the file would not take too much time because we only need to load the result instead of running the model again.
+
+As we can see in the result above, the accuracy for this model is 87.41%. 
+
 ### Combined Models 
 
 **Combined Model Confusion Matrix and Statistics**
@@ -255,7 +259,7 @@ combinedTable1$combinedPredictions <- ifelse(combinedTable1$sum >= 4, 1, 0)
 caret::confusionMatrix(as.factor(combinedTable1$combinedPredictions), as.factor(airline_test$satisfaction))
 ```
 
-**Stacked ModelConfusion Matrix and Statistics**
+**Stacked Model Confusion Matrix and Statistics**
 ```{r}
 
 ```
