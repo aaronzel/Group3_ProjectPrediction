@@ -136,29 +136,28 @@ mean_df
 Let's dive deeper into these three variables and see their relationship with satisfaction.
 
 ```{r}
-wifi_service_plot <- ggplot(data=airline_train, aes(x=Inflight.wifi.service, y=satisfaction)) + geom_jitter() + xlab("Inflight Wifi Service") + ylab("Satisfaction") + ggtitle("Inflight Wifi Service vs Satisfaction") + theme(plot.title = element_text(hjust = 0.5))
-wifi_service_plot
+ggplot(airline_train,
+       aes(x = Inflight.wifi.service,
+           fill = as.factor(satisfaction))) +
+  geom_bar(position = "dodge") + 
+  labs(y = "Number Satisfied", x = "Inflight Wifi Service Rating", title = "Inflight Wifi Service Rating vs Number Satisfied")
 ```
 
 ```{r}
-GGally::ggpairs(
-  airline_train, 
-  columns = c("Inflight.wifi.service", "Ease.of.Online.booking", "Gate.location"), 
-  columnLabels = c("Inflight Wifi Service", "Ease of Online Booking", "Gate Location"),
-  lower = list(
-    continuous = "smooth"
-  ),
-  diag = list(
-    continuous = "smooth"
-  ),
-  upper = list(
-    continuous = "smooth"
-  )
-)
+ggplot(airline_train,
+       aes(x = Ease.of.Online.booking,
+           fill = as.factor(satisfaction))) +
+  geom_bar(position = "dodge") +
+  labs(y = "Number Satisfied", x = "Ease of Online Booking Rating", title = "Ease of Online Booking vs Number Satisfied")
 ```
 
-
-**ADD OTHER 2 GRAPHS HERE**
+```{r}
+ggplot(airline_train,
+       aes(x = Gate.location,
+           fill = as.factor(satisfaction)))+
+  geom_bar(position = "dodge")+
+  labs(y = "Number Satisfied", x = "Gate Location Rating", title = "Gate Location Rating vs Number Satisfied")
+```
 
 
 ### Regression 
