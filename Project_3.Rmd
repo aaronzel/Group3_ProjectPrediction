@@ -259,7 +259,6 @@ caret::confusionMatrix(airline_decision_pred, airline_test$satisfaction)
 ```
 
 ### SVM 
-*SVM is a supervised learning method that tries to draw a boundary between two levels of response while maximizing margin and minimizing the distance of the misclassified errors from the best hyperplane (or the separating boundary). There are many different types of boundaries, each type corresponds to a different kernel, which is a function that computes the inner product between our predictors. The most popular kernals are the Radial Basis kernel, Polynomial kernel, and Linear kernel. However, non-linear kernals are computationally expensive to run, so we are going to run only the linear kernal. Note that the linear kernal corresponds to the parameter option "vanilladot" in kernlab library.*
 
 **SVM Confusion Matrix and Statistics**
 ```{r, warning=FALSE}
@@ -275,6 +274,8 @@ predictions_svm <- predict(svm_model1, airline_test_factorized_normalized)
 #evaluating model performance
 caret::confusionMatrix(as.factor(predictions_svm), as.factor(airline_test_factorized_normalized$satisfaction))
 ```
+
+*SVM is a supervised learning method that tries to draw a boundary between two levels of response while maximizing margin and minimizing the distance of the misclassified errors from the best hyperplane (or the separating boundary). There are many different types of boundaries, each type corresponds to a different kernel, which is a function that computes the inner product between our predictors. The most popular kernals are the Radial Basis kernel, Polynomial kernel, and Linear kernel. However, non-linear kernals are computationally expensive to run, so we are going to run only the linear kernal. Note that the linear kernal corresponds to the parameter option "vanilladot" in kernlab library.*
 
 *Because running SVM model in such a huge dataset consumes a lot of computational resources, we decided to run it only once and save the result in a file. This way, knitting the file would not take too much time because we only need to load the result instead of running the model again.*
 
