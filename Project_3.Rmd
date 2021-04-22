@@ -142,7 +142,7 @@ ggplot(airline_train,
            fill = factor(satisfaction,
            labels = c("Neutral or Dissatisfied", "Satisfied")))) +
   geom_bar(position = "dodge") + 
-  labs(y = "Number Satisfied", x = "Inflight Wifi Service Rating", fill = "Satisfaction", title = "Inflight Wifi Service Rating vs Number Satisfied")
+  labs(y = "Number Satisfied", x = "Inflight Wifi Service Rating", fill = "Satisfaction", title = "Inflight Wifi Service Rating vs Number Satisfied") + theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90))
 ```
 
 *The chart above displays the distribution between the Inflight Wifi Service Rating and the corresponding number of people who were satisfied/unsatisfied. As expected, as the rating for inflight wifi service increases, so does the number of people who are satisfied. Interestingly, the number of people who are neutral or dissatisfied is very similar if the rating is 2 or 3, which is in line with the mean inflight wifi service rating as calculated above. Further, it is a surprise that all of the customers who gave a 0 rating for inflight wifi service were all satisfied, according to the chart. If the airline can increase this average rating amongst their customers, the number of satisfactory surveys will increase.*
@@ -154,7 +154,7 @@ ggplot(airline_train,
            fill = factor(satisfaction,
            labels = c("Neutral or Dissatisfied", "Satisfied")))) +
   geom_bar(position = "dodge") +
-  labs(y = "Number Satisfied", x = "Ease of Online Booking Rating", fill = "satisfaction", title = "Ease of Online Booking vs Number Satisfied")
+  labs(y = "Number Satisfied", x = "Ease of Online Booking Rating", fill = "satisfaction", title = "Ease of Online Booking vs Number Satisfied")+ theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90))
 ```
 
 *The chart above displays the distribution of the ease of online booking rating submitted by customers versus their general satisfaction/dissatisfaction. Similarly to the last chart, as the rating increases, so does the number of satisfied customers. The number of neutral or dissastisfied customers is stable between 2 and 3, reaffirming the mean of the rating. In this chart however, there were customers who were neutral/dissatisfied and satisfied when the rating was 0, slightly opposite of what was in the first chart. If the airline can increase this average rating amongst their customers, the number of satisfactory surveys will increase.*
@@ -167,7 +167,7 @@ ggplot(airline_train,
            fill = factor(satisfaction,
            labels = c("Neutral or Dissatisfied", "Satisfied")))) +
   geom_bar(position = "dodge")+
-  labs(y = "Number Satisfied", x = "Gate Location Rating", fill = "satisfaction", title = "Gate Location Rating vs Number Satisfied")
+  labs(y = "Number Satisfied", x = "Gate Location Rating", fill = "satisfaction", title = "Gate Location Rating vs Number Satisfied") + theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90))
 ```
 
 *This chart is much different from the last two for a variety of reasons. First, not one customer answered 0 for the gate location rating, meaning that all were at least slightly satisfied with this service. Subsequently, although the neutral/dissatisfied curve tops out at 3, the number of satisfied customers is fairly stable across all ratings. This could mean that gate location does not play a large role in the satisfaction of a customer. Another piece of evidence that this is true is the 1 and 2 ratings, where the number of neutral/dissatisfied customers and satisfied customers was fairly similar. In all, through this analysis, this metric is not vital for the airline's customers to be satisfied with their experience.*
@@ -237,7 +237,7 @@ predicted_ANN_results <- ifelse(model_pred > cutoff, 1, 0)
 caret::confusionMatrix(as.factor(predicted_ANN_results), as.factor(airline_factorizednormalized_testlabels$satisfaction))
 ```
 
-*The neural net algorithm provides a prediction of satisfaction by using nodes that model the neurons in our brain. To optimize this model, we adjusted the number of hidden nodes and the probability cutoff for a satisfied (1) prediction. We found that adding hidden nodes helped with accuracy. Going to 2 hidden nodes increased the accuracy to 91%. However, adding any more hidden nodes than 2 proved to be too computationally demanding for the computer to execute. Thereafter, we employed the optimalCutoff function to determine that a cutoff of 41.9% was the optimal value for maximizing accuracy. At this cutoff, sensitivity remains high too. This model is also advantageous in its distribution of errors as it is skewed towards false negatives over false positives. While this model performs well, it is more computationally demannding thann KNN, despite providing similar results.* 
+*The neural net algorithm provides a prediction of satisfaction by using nodes that model the neurons in our brain. To optimize this model, we adjusted the number of hidden nodes and the probability cutoff for a satisfied (1) prediction. We found that adding hidden nodes helped with accuracy. Going to 2 hidden nodes increased the accuracy to 91%. However, adding any more hidden nodes than 2 proved to be too computationally demanding for the computer to execute. Thereafter, we employed the optimalCutoff function to determine that a cutoff of 41.9% was the optimal value for maximizing accuracy. This model is also advantageous in its distribution of errors as it is skewed towards false negatives over false positives. At its optimal parameters, accuracy is about 91%, sensitivity is about 92%, and Kappa is 0.814. While this model performs well, it is more computationally demanding than KNN, despite providing worse results. Nevertheless, it does outperform the regression.* 
 
 ### Decision Tree 
 
@@ -288,6 +288,10 @@ combinedTable1$combinedPredictions <- ifelse(combinedTable1$sum >= 4, 1, 0)
 
 caret::confusionMatrix(as.factor(combinedTable1$combinedPredictions), as.factor(airline_test$satisfaction))
 ```
+
+*The 1st combined model is based on a simple voting system. If 4 or more models predict satisfied (1), then the combined model predicts satisfied. This leads to an accuracy of 92%, sensitivity of 88%, and Kappa of 0.83, making it a relatively good model. Next, we will look at an ensemble method.*
+<br />
+<br />
 
 **Stacked Model Confusion Matrix and Statistics**
 ```{r}
