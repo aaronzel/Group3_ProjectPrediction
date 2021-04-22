@@ -334,15 +334,14 @@ stacked_train <- combinedTable1[-test_set, ]
 stacked_test <- combinedTable1[test_set, ]
 
 stacked_test_labels <- combinedTable1[test_set, "satisfaction"]
-```
 
-```{r}
 stacked_model_tree <- C5.0(as.factor(satisfaction) ~ ANN + kNN + logistic + DT + SVM, data = stacked_train)
 
 stacked_pred <- predict(stacked_model_tree, newdata = stacked_test)
 
 caret::confusionMatrix(as.factor(stacked_pred), as.factor(stacked_test_labels))
 ```
-*The 2nd combined model, the stacked model, improves on the combined model with an accuracy at 96.3%, kappa value at 0.925, indicating near perfect agreement, and sensitivity at 97.9%.*
+
+*The 2nd combined model, the stacked model, improves on the combined model with an accuracy at 96.3%, Kappa value at 0.925, indicating near perfect agreement, and sensitivity at 97.9%. This model runs a decision tree using the data from all the different models' predictions, thereby creating an ensemble method.*
 
 ### Conclusion 
