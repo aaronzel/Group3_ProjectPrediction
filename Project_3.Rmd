@@ -287,20 +287,39 @@ caret::confusionMatrix(as.factor(predictions_svm), as.factor(airline_test_factor
 ```{r}
 combinedTable1 <- data.frame(ANN = as.numeric(predicted_ANN_results), kNN = as.numeric(satifaction_test_pred_knn), logistic = as.numeric(binary_predictions), DT = as.numeric(airline_decision_pred), SVM = as.numeric(predictions_svm))
 
+combinedTable1$kNN <- combinedTable1$kNN - 1
+combinedTable1$DT <- combinedTable1$DT - 1
+combinedTable1$SVM <- combinedTable1$SVM - 1
 combinedTable1$sum <- rowSums(combinedTable1)
 combinedTable1$combinedPredictions <- ifelse(combinedTable1$sum >= 4, 1, 0) 
 
 caret::confusionMatrix(as.factor(combinedTable1$combinedPredictions), as.factor(airline_test$satisfaction))
 ```
 
-*The 1st combined model is based on a simple voting system. If 4 or more models predict satisfied (1), then the combined model predicts satisfied. This leads to an accuracy of 92%, sensitivity of 88%, and Kappa of 0.83, making it a relatively good model. Next, we will look at an ensemble method.*
+*The 1st combined model is based on a simple voting system. If 4 or more models predict satisfied (1), then the combined model predicts satisfied. This leads to an accuracy of 90.5%, sensitivity of 98%, and Kappa of 0.803, making it a relatively good model. Next, we will look at an ensemble method.*
 <br />
 <br />
 
 **Stacked Model Confusion Matrix and Statistics**
-```{r}
 
+```{r}
+set.seed(123)
+combinedTable1$satisfaction <- airline_test_factorized_normalized$satisfaction
+test_set <- sample(1:nrow(combinedTable1), 0.2*nrow(combinedTable1))
+
+stacked_train <- combinedTable1[-test_set, ]
+stacked_test <- combinedTable1[test_set, ]
+
+stacked_test_labels <- combinedTable1[test_set, "satisfaction"]
 ```
 
+```{r}
+stacked_model_tree <- C5.0(as.factor(satisfaction) ~ ANN + kNN + logistic + DT + SVM, data = stacked_train)
+
+stacked_pred <- predict(stacked_model_tree, newdata = stacked_test)
+
+caret::confusionMatrix(as.factor(stacked_pred), as.factor(stacked_test_labels))
+```
+*The 2nd combined model, the stacked model, improves on the combined model with an accuracy at 96.3%, kappa value at 0.925, indicating near perfect agreement, and sensitivty at 97.9%.*
 
 ### Conclusion 
