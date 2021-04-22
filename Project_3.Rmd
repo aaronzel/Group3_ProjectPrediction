@@ -202,6 +202,12 @@ summary(logit_model1)
 
 logit_model3 <- glm(satisfaction ~ . - Flight.Distance, data = airline_train, family = "binomial")
 summary(logit_model3)
+
+#Simple Tune of Logisitc Regression Model
+set.seed(123)
+logit_model4 <- train(as.factor(satisfaction) ~., data = airline_train, method = "glm", family ="binomial")
+logit_model4
+
 ```
 <br />
 <br />
@@ -277,6 +283,8 @@ airline_decision_pred <- as.factor(airline_decision_pred)
 
 caret::confusionMatrix(airline_decision_pred, airline_test$satisfaction)
 ```
+
+*Decision Tree models comprise a set of logical decisions. These decisions are represented by decision nodes that indicate decisions to be made based on attributes. This is useful when one needs to be informed on what impacts an outcome in order to influence decision making. We found this model to be very effective when determining customer satisfaction with an accuracy of 96% and a Kappa value of .9201. This makes this model very valuable to us since we can also observe a flowchart of what influences customer satisfaction*
 
 ### SVM 
 
