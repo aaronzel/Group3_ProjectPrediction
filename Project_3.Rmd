@@ -136,11 +136,41 @@ mean_df
 Let's dive deeper into these three variables and see their relationship with satisfaction.
 
 ```{r}
-wifi_service_plot <- ggplot(data=airline_train, aes(x=Inflight.wifi.service, y=satisfaction)) + geom_jitter() + xlab("Inflight Wifi Service") + ylab("Satisfaction") + ggtitle("Inflight Wifi Service vs Satisfaction") + theme(plot.title = element_text(hjust = 0.5))
-wifi_service_plot
+#Inflight Wifi Service vs Satisfaction
+ggplot(airline_train,
+       aes(x = Inflight.wifi.service,
+           fill = factor(satisfaction,
+           labels = c("Neutral or Dissatisfied", "Satisfied")))) +
+  geom_bar(position = "dodge") + 
+  labs(y = "Number Satisfied", x = "Inflight Wifi Service Rating", fill = "Satisfaction", title = "Inflight Wifi Service Rating vs Number Satisfied")
 ```
 
-**ADD OTHER 2 GRAPHS HERE**
+*The chart above displays the distribution between the Inflight Wifi Service Rating and the corresponding number of people who were satisfied/unsatisfied. As expected, as the rating for inflight wifi service increases, so does the number of people who are satisfied. Interestingly, the number of people who are neutral or dissatisfied is very similar if the rating is 2 or 3, which is in line with the mean inflight wifi service rating as calculated above. Further, it is a surprise that all of the customers who gave a 0 rating for inflight wifi service were all satisfied, according to the chart. If the airline can increase this average rating amongst their customers, the number of satisfactory surveys will increase.*
+
+```{r}
+#Ease of Online Booking vs Satisfaction
+ggplot(airline_train,
+       aes(x = Ease.of.Online.booking,
+           fill = factor(satisfaction,
+           labels = c("Neutral or Dissatisfied", "Satisfied")))) +
+  geom_bar(position = "dodge") +
+  labs(y = "Number Satisfied", x = "Ease of Online Booking Rating", fill = "satisfaction", title = "Ease of Online Booking vs Number Satisfied")
+```
+
+*The chart above displays the distribution of the ease of online booking rating submitted by customers versus their general satisfaction/dissatisfaction. Similarly to the last chart, as the rating increases, so does the number of satisfied customers. The number of neutral or dissastisfied customers is stable between 2 and 3, reaffirming the mean of the rating. In this chart however, there were customers who were neutral/dissatisfied and satisfied when the rating was 0, slightly opposite of what was in the first chart. If the airline can increase this average rating amongst their customers, the number of satisfactory surveys will increase.*
+
+
+```{r}
+#Gate Location vs Satisfaction
+ggplot(airline_train,
+       aes(x = Gate.location,
+           fill = factor(satisfaction,
+           labels = c("Neutral or Dissatisfied", "Satisfied")))) +
+  geom_bar(position = "dodge")+
+  labs(y = "Number Satisfied", x = "Gate Location Rating", fill = "satisfaction", title = "Gate Location Rating vs Number Satisfied")
+```
+
+*This chart is much different from the last two for a variety of reasons. First, not one customer answered 0 for the gate location rating, meaning that all were at least slightly satisfied with this service. Subsequently, although the neutral/dissatisfied curve tops out at 3, the number of satisfied customers is fairly stable across all ratings. This could mean that gate location does not play a large role in the satisfaction of a customer. Another piece of evidence that this is true is the 1 and 2 ratings, where the number of neutral/dissatisfied customers and satisfied customers was fairly similar. In all, through this analysis, this metric is not vital for the airline's customers to be satisfied with their experience.*
 
 
 ### Regression 
@@ -167,7 +197,7 @@ binary_predictions <- ifelse(prediction > optimal, 1, 0)
 caret::confusionMatrix(as.factor(binary_predictions), as.factor(airline_test$satisfaction))
 ```
 
-The logistic regression provides a prediction of satisfaction by using the log odds ratio. The model above achieved an accuracy of 87.3%, sensitivity of 91.4%, and Kappa of 0.74. This shows that the model is helpful in predicting customer satisfaction, along with highlighting the particular areas that impact satisfaction the most. We also optimized the model by using the optimalCutoff function for predicting satisfied (1) or not satisfied (0). While accuracy could be higher, the errors in this model are skewed more towards false negatives than false positives, which is also better because we'd rather not miss dissatisfied customers by thinking they were satisfied when inn reality they were not. Since all variables are significant (besides flight distance), this also means they are all predictive. According to our model, some of the variables that have the highest positive impact on satisfaction are: loyal customers and online boarding, whereas some of the variables that have the most negative impact on satisfaction are: personal travelers and economy/economy plus travelers. Perhaps this means that the airline needs to focus more on these customers and their amenities to boost satisfaction.
+*The logistic regression provides a prediction of satisfaction by using the log odds ratio. The model above achieved an accuracy of 87.3%, sensitivity of 91.4%, and Kappa of 0.74. This shows that the model is helpful in predicting customer satisfaction, along with highlighting the particular areas that impact satisfaction the most. We also optimized the model by using the optimalCutoff function for predicting satisfied (1) or not satisfied (0). While accuracy could be higher, the errors in this model are skewed more towards false negatives than false positives, which is also better because we'd rather not miss dissatisfied customers by thinking they were satisfied when inn reality they were not. Since all variables are significant (besides flight distance), this also means they are all predictive. According to our model, some of the variables that have the highest positive impact on satisfaction are: loyal customers and online boarding, whereas some of the variables that have the most negative impact on satisfaction are: personal travelers and economy/economy plus travelers. Perhaps this means that the airline needs to focus more on these customers and their amenities to boost satisfaction.*
 
 ### KNN
 
@@ -207,7 +237,7 @@ predicted_ANN_results <- ifelse(model_pred > cutoff, 1, 0)
 caret::confusionMatrix(as.factor(predicted_ANN_results), as.factor(airline_factorizednormalized_testlabels$satisfaction))
 ```
 
-The neural net algorithm provides a prediction of satisfaction by using nodes that model the neurons in our brain. To optimize this model, we adjusted the number of hidden nodes and the probability cutoff for a satisfied (1) prediction. We found that adding hidden nodes helped with accuracy. Going to 2 hidden nodes increased the accuracy to 91%. However, adding any more hidden nodes than 2 proved to be too computationally demanding for the computer to execute. Thereafter, we employed the optimalCutoff function to determine that a cutoff of 41.9% was the optimal value for maximizing accuracy. At this cutoff, sensitivity remains high too. This model is also advantageous in its distribution of errors as it is skewed towards false negatives over false positives. While this model performs well, it is more computationally demannding thann KNN, despite providing similar results. 
+*The neural net algorithm provides a prediction of satisfaction by using nodes that model the neurons in our brain. To optimize this model, we adjusted the number of hidden nodes and the probability cutoff for a satisfied (1) prediction. We found that adding hidden nodes helped with accuracy. Going to 2 hidden nodes increased the accuracy to 91%. However, adding any more hidden nodes than 2 proved to be too computationally demanding for the computer to execute. Thereafter, we employed the optimalCutoff function to determine that a cutoff of 41.9% was the optimal value for maximizing accuracy. At this cutoff, sensitivity remains high too. This model is also advantageous in its distribution of errors as it is skewed towards false negatives over false positives. While this model performs well, it is more computationally demannding thann KNN, despite providing similar results.* 
 
 ### Decision Tree 
 
@@ -226,6 +256,7 @@ caret::confusionMatrix(airline_decision_pred, airline_test$satisfaction)
 ```
 
 ### SVM 
+*SVM is a supervised learning method that tries to draw a boundary between two levels of response while maximizing margin and minimizing the distance of the misclassified errors from the best hyperplane (or the separating boundary). There are many different types of boundaries, each type corresponds to a different kernel, which is a function that computes the inner product between our predictors. The most popular kernals are the Radial Basis kernel, Polynomial kernel, and Linear kernel. However, non-linear kernals are computationally expensive to run, so we are going to run only the linear kernal. Note that the linear kernal corresponds to the parameter option "vanilladot" in kernlab library.*
 
 **SVM Confusion Matrix and Statistics**
 ```{r, warning=FALSE}
@@ -233,7 +264,7 @@ caret::confusionMatrix(airline_decision_pred, airline_test$satisfaction)
 svm_model1 <- ksvm(as.factor(satisfaction) ~., data = airline_train_factorized_normalized, kernel = "vanilladot", scaled = TRUE)
 
 #save(svm_model1, file="svm_model.RData") # saves the result as object to knit and load faster
-#load("svm_model.RData")
+load("svm_model.RData")
 
 #making predictions
 predictions_svm <- predict(svm_model1, airline_test_factorized_normalized)
@@ -242,11 +273,9 @@ predictions_svm <- predict(svm_model1, airline_test_factorized_normalized)
 caret::confusionMatrix(as.factor(predictions_svm), as.factor(airline_test_factorized_normalized$satisfaction))
 ```
 
-SVM is a supervised learning method that tries to draw a boundary between two levels of response while maximizing margin and minimizing the distance of the misclassified errors from the best hyperplane (or the separating boundary). There are many different types of boundaries, each type corresponds to a different kernel, which is a function that computes the inner product between our predictors. The most popular kernals are the Radial Basis kernel, Polynomial kernel, and Linear kernel. However, non-linear kernals are computationally expensive to run, so we are going to run only the linear kernal. Note that the linear kernal corresponds to the parameter option "vanilladot" in kernlab library.
+*Because running SVM model in such a huge dataset consumes a lot of computational resources, we decided to run it only once and save the result in a file. This way, knitting the file would not take too much time because we only need to load the result instead of running the model again.*
 
-Because running SVM model in such a huge dataset consumes a lot of computational resources, we decided to run it only once and save the result in a file. This way, knitting the file would not take too much time because we only need to load the result instead of running the model again.
-
-As we can see in the result above, the accuracy for this model is 87.41%. 
+*As we can see in the result above, the SVM model achieved an accuracy of 87.3%, sensitivity of 92.3%, and Kappa of 0.741, which is reasonable, but performs worse in comparison to Decision Tree model or ANN. However, the incorrect prediction skewed more towards false negative, which is good since we want to underestimate the satisfaction of the customer so that we can work harder to improve the our service.*
 
 ### Combined Models 
 
