@@ -320,6 +320,6 @@ stacked_pred <- predict(stacked_model_tree, newdata = stacked_test)
 
 caret::confusionMatrix(as.factor(stacked_pred), as.factor(stacked_test_labels))
 ```
-*The 2nd combined model, the stacked model, improves on the combined model with an accuracy at 96.3%, kappa value at 0.925, indicating near perfect agreement, and sensitivty at 97.9%.*
+*The 2nd combined model, the stacked model, improves on the combined model with an accuracy at 96.3%, kappa value at 0.925, indicating near perfect agreement, and sensitivity at 97.9%.*
 
 ### Conclusion 
