@@ -225,7 +225,10 @@ caret::confusionMatrix(as.factor(satifaction_test_pred_knn), as.factor(airline_f
 
 **ANN Confusion Matrix and Statistics**
 ```{r, cache = TRUE}
-airlineneuralnet1 <- neuralnet(formula = satisfaction ~ ., data = airline_train_factorized_normalized, hidden = 2, stepmax = 10000000000000000)
+#airlineneuralnet1 <- neuralnet(formula = satisfaction ~ ., data = airline_train_factorized_normalized, hidden = 2, stepmax = 10000000000000000)
+
+#save(airlineneuralnet1, file="airline_neural_net.RData")
+load("airline_neural_net.RData")
 
 model_results <- neuralnet::compute(airlineneuralnet1, airline_test_factorized_normalized)
 predicted_y <- model_results$net.result
@@ -261,7 +264,7 @@ caret::confusionMatrix(airline_decision_pred, airline_test$satisfaction)
 **SVM Confusion Matrix and Statistics**
 ```{r, warning=FALSE}
 #building SVM model
-svm_model1 <- ksvm(as.factor(satisfaction) ~., data = airline_train_factorized_normalized, kernel = "vanilladot", scaled = TRUE)
+#svm_model1 <- ksvm(as.factor(satisfaction) ~., data = airline_train_factorized_normalized, kernel = "vanilladot", scaled = TRUE)
 
 #save(svm_model1, file="svm_model.RData") # saves the result as object to knit and load faster
 load("svm_model.RData")
