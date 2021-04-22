@@ -239,10 +239,7 @@ caret::confusionMatrix(as.factor(satifaction_test_pred_knn), as.factor(airline_f
 #CrossTable(x = airline_factorizednormalized_testlabels, y = satifaction_test_pred_knn, prop.chisq=FALSE)
 ```
 
-
-**ADD MODEL TUNING HERE?**
-
-KNN Confusion Matrix Analysis: The confusion matrix shows us that the model is correct 92.89% of the time. The kappa is 0.85, which represents how good the predictions are compared to random guessing. This is quite high, which is an indication of a good model. The p value is sufficiently low, at 0.2.2e-16. Because this figure is below 0.05, the model is significant. Mcnemar’s test p-value is 2.2e-16. Model sensitivity is 0.973 - this is the rate that we correctly identified a non-satisfied customer as a non-satisfied customer. Specificity is 0.873 - this is the rate that we predicted a person was satisfied when they actually were. The model more correctly predicts satisified customers than non-satisfied customers. 
+*The confusion matrix shows us that the model is correct 92.89% of the time. The kappa is 0.85, which represents how good the predictions are compared to random guessing. This is quite high, which is an indication of a good model. The p value is sufficiently low, at 0.2.2e-16. Because this figure is below 0.05, the model is significant. Mcnemar’s test p-value is 2.2e-16. Model sensitivity is 0.973 - this is the rate that we correctly identified a non-satisfied customer as a non-satisfied customer. Specificity is 0.873 - this is the rate that we predicted a person was satisfied when they actually were. The model more correctly predicts satisfied customers than non-satisfied customers.* 
 
 ### ANN
 
