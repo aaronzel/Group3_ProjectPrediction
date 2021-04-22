@@ -76,7 +76,15 @@ airline_factorizednormalized_testlabels <- airline_test_factorized_normalized["s
 
 ### Exploration 
 
-The goal of this analysis is to identify opportunities for which metrics this airline can improve and how that would affect the overall satisfaction of their customers. We want to look at the elements that are the most and least likely to induce a positive or neutral/negative reaction in a customer. This way, we can identify the elements that the airline needs to improve on and where they need to spend the most amount of their resources (time/money).
+*The goal of this analysis is to identify opportunities for which metrics this airline can improve and how that would affect the overall satisfaction of their customers. We want to look at the elements that are the most and least likely to induce a positive or neutral/negative reaction in a customer. This way, we can identify the elements that the airline needs to improve on and where they need to spend the most amount of their resources (time/money).*
+
+```{r}
+satisfaction_table <- table(airline_train$satisfaction)
+satisfaction_table
+prop.table(satisfaction_table)
+```
+
+*First, we will look at how many customers are satisfied and neutral/dissatisfied. Right off the bat, we see that more than half of customers are neutral/dissatisfied. Next, we will look at the potential variables that are leading to this through the use of a correlation graph and matrix.*
 
 ```{r}
 #Correlations with satisfaction 
@@ -143,9 +151,12 @@ ggplot(airline_train,
            labels = c("Neutral or Dissatisfied", "Satisfied")))) +
   geom_bar(position = "dodge") + 
   labs(y = "Number Satisfied", x = "Inflight Wifi Service Rating", fill = "Satisfaction", title = "Inflight Wifi Service Rating vs Number Satisfied") + theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90))
+
+wifi_satisfaction <- setNames(aggregate(as.numeric(satisfaction) - 1 ~ Inflight.wifi.service, data = airline_train, sum), c("Inflight Wifi Service Rating", "Total Satisfied"))
+wifi_satisfaction
 ```
 
-*The chart above displays the distribution between the Inflight Wifi Service Rating and the corresponding number of people who were satisfied/unsatisfied. As expected, as the rating for inflight wifi service increases, so does the number of people who are satisfied. Interestingly, the number of people who are neutral or dissatisfied is very similar if the rating is 2 or 3, which is in line with the mean inflight wifi service rating as calculated above. Further, it is a surprise that all of the customers who gave a 0 rating for inflight wifi service were all satisfied, according to the chart. If the airline can increase this average rating amongst their customers, the number of satisfactory surveys will increase.*
+*The chart above displays the distribution between the Inflight Wifi Service Rating and the corresponding number of people who were satisfied/unsatisfied. As expected, as the rating for inflight wifi service increases, so does the number of people who are satisfied. Interestingly, the number of people who are neutral or dissatisfied is very similar if the rating is 2 or 3, which is in line with the mean inflight wifi service rating as calculated above. Further, it is a surprise that almost all of the customers who gave a 0 rating for inflight wifi service were all satisfied, according to the chart. If the airline can increase this average rating amongst their customers, the number of satisfactory surveys will increase.*
 
 ```{r}
 #Ease of Online Booking vs Satisfaction
@@ -155,6 +166,9 @@ ggplot(airline_train,
            labels = c("Neutral or Dissatisfied", "Satisfied")))) +
   geom_bar(position = "dodge") +
   labs(y = "Number Satisfied", x = "Ease of Online Booking Rating", fill = "satisfaction", title = "Ease of Online Booking vs Number Satisfied")+ theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90))
+
+booking_satisfaction <- setNames(aggregate(as.numeric(satisfaction) - 1 ~ Ease.of.Online.booking, data = airline_train, sum), c("Ease of Online Booking Rating", "Total Satisfied"))
+booking_satisfaction
 ```
 
 *The chart above displays the distribution of the ease of online booking rating submitted by customers versus their general satisfaction/dissatisfaction. Similarly to the last chart, as the rating increases, so does the number of satisfied customers. The number of neutral or dissastisfied customers is stable between 2 and 3, reaffirming the mean of the rating. In this chart however, there were customers who were neutral/dissatisfied and satisfied when the rating was 0, slightly opposite of what was in the first chart. If the airline can increase this average rating amongst their customers, the number of satisfactory surveys will increase.*
@@ -168,6 +182,9 @@ ggplot(airline_train,
            labels = c("Neutral or Dissatisfied", "Satisfied")))) +
   geom_bar(position = "dodge")+
   labs(y = "Number Satisfied", x = "Gate Location Rating", fill = "satisfaction", title = "Gate Location Rating vs Number Satisfied") + theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90))
+
+gate_satisfaction <- setNames(aggregate(as.numeric(satisfaction) - 1 ~ Gate.location, data = airline_train, sum), c("Gate Location Rating", "Total Satisfied"))
+gate_satisfaction
 ```
 
 *This chart is much different from the last two for a variety of reasons. First, not one customer answered 0 for the gate location rating, meaning that all were at least slightly satisfied with this service. Subsequently, although the neutral/dissatisfied curve tops out at 3, the number of satisfied customers is fairly stable across all ratings. This could mean that gate location does not play a large role in the satisfaction of a customer. Another piece of evidence that this is true is the 1 and 2 ratings, where the number of neutral/dissatisfied customers and satisfied customers was fairly similar. In all, through this analysis, this metric is not vital for the airline's customers to be satisfied with their experience.*
