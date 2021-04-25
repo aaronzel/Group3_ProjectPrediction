@@ -291,7 +291,7 @@ caret::confusionMatrix(airline_decision_pred, airline_test$satisfaction)
 **SVM Confusion Matrix and Statistics**
 ```{r, warning=FALSE}
 #building SVM model
-#svm_model1 <- ksvm(as.factor(satisfaction) ~., data = airline_train_factorized_normalized, kernel = "vanilladot", scaled = TRUE)
+#svm_model1 <- ksvm(as.factor(satisfaction) ~., data = airline_train_factorized_normalized, kernel = "rbfdot", scaled = TRUE)
 
 #save(svm_model1, file="svm_model.RData") # saves the result as object to knit and load faster
 load("svm_model.RData")
@@ -303,11 +303,11 @@ predictions_svm <- predict(svm_model1, airline_test_factorized_normalized)
 caret::confusionMatrix(as.factor(predictions_svm), as.factor(airline_test_factorized_normalized$satisfaction))
 ```
 
-*SVM is a supervised learning method that tries to draw a boundary between two levels of response while maximizing margin and minimizing the distance of the misclassified errors from the best hyperplane (or the separating boundary). There are many different types of boundaries, each type corresponds to a different kernel, which is a function that computes the inner product between our predictors. The most popular kernals are the Radial Basis kernel, Polynomial kernel, and Linear kernel. However, non-linear kernals are computationally expensive to run, so we are going to run only the linear kernal. Note that the linear kernal corresponds to the parameter option "vanilladot" in kernlab library.*
+*SVM is a supervised learning method that tries to draw a boundary between two levels of response while maximizing margin and minimizing the distance of the misclassified errors from the best hyperplane (or the separating boundary). There are many different types of boundaries, each type corresponds to a different kernel, which is a function that computes the inner product between our predictors. The most popular kernals are the Radial Basis kernel, Polynomial kernel, and Linear kernel. Upon the inspection of the result from the previous analysis, models that assumes linear solution (such as Logistic Regression) perform worse than models that do not. Therefore, we decided to run the model with the Radial Basis Kernal which is one of the most popular non-linear kernals in SVM.*
 
 *Because running SVM model in such a huge dataset consumes a lot of computational resources, we decided to run it only once and save the result in a file. This way, knitting the file would not take too much time because we only need to load the result instead of running the model again.*
 
-*As we can see in the result above, the SVM model achieved an accuracy of 87.3%, sensitivity of 92.3%, and Kappa of 0.741, which is reasonable, but performs worse in comparison to Decision Tree model or ANN. However, the incorrect prediction skewed more towards false negative, which is good since we want to underestimate the satisfaction of the customer so that we can work harder to improve the our service.*
+*As we can see in the result above, the SVM model achieved an accuracy of 95.11%, sensitivity of 95.65%, and Kappa of 0.9004, which is really good and is only outperformed by Decision Tree by a small amount. On top of that, the incorrect prediction skewed more towards false negative, which is good since we want to underestimate the satisfaction of the customer so that we can work harder to improve the our service.*
 
 ### Combined Models 
 
@@ -319,12 +319,12 @@ combinedTable1$kNN <- combinedTable1$kNN - 1
 combinedTable1$DT <- combinedTable1$DT - 1
 combinedTable1$SVM <- combinedTable1$SVM - 1
 combinedTable1$sum <- rowSums(combinedTable1)
-combinedTable1$combinedPredictions <- ifelse(combinedTable1$sum >= 4, 1, 0) 
+combinedTable1$combinedPredictions <- ifelse(combinedTable1$sum >= 3, 1, 0) 
 
 caret::confusionMatrix(as.factor(combinedTable1$combinedPredictions), as.factor(airline_test$satisfaction))
 ```
 
-*The 1st combined model is based on a simple voting system. If 4 or more models predict satisfied (1), then the combined model predicts satisfied. This leads to an accuracy of 90.5%, sensitivity of 98%, and Kappa of 0.803, making it a relatively good model. Next, we will look at an ensemble method.*
+*The 1st combined model is based on a simple voting system. If 3 or more models predict satisfied (1), then the combined model predicts satisfied. This leads to an accuracy of 93.89%, sensitivity of 96.77%, and Kappa of 0.8751, making it a relatively good model. Next, we will look at an ensemble method.*
 <br />
 <br />
 
