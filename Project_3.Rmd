@@ -198,25 +198,19 @@ gate_satisfaction
 
 **Logistic Regression Summaries**
 ```{r}
-logit_model1 <- glm(satisfaction ~., data = airline_train, family = "binomial")
-summary(logit_model1)
-
-#logit_model2 <- step (logit_model1)
-#summary(logit_model2)
-
-logit_model3 <- glm(satisfaction ~ . - Flight.Distance, data = airline_train, family = "binomial")
-summary(logit_model3)
+logit_model <- glm(satisfaction ~ . - Flight.Distance, data = airline_train, family = "binomial")
+summary(logit_model)
 
 #Simple Tune of Logistic Regression Model
-set.seed(123)
-logit_model4 <- train(as.factor(satisfaction) ~., data = airline_train, method = "glm", family = "binomial")
-logit_model4
+#set.seed(123)
+#logit_model_tuned <- train(as.factor(satisfaction) ~. - Flight.Distance, data = airline_train, method = "glm", family = "binomial")
+#summary(logit_model_tuned)
 ```
 <br />
 <br />
 **Regression Confusion Matrix and Statistics**
 ```{r}
-prediction <- predict(logit_model3, newdata = airline_test, type = "response")
+prediction <- predict(logit_model, newdata = airline_test, type = "response")
 optimal <- optimalCutoff(airline_test$satisfaction, prediction)[1]
 binary_predictions <- ifelse(prediction > optimal, 1, 0)
 
