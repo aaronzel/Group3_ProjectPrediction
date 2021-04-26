@@ -223,14 +223,21 @@ caret::confusionMatrix(as.factor(binary_predictions), as.factor(airline_test$sat
 ctrl <- trainControl(method = "cv", number = 10)
 
 set.seed(300)
-logit_model_ctrl <- train(as.factor(satisfaction) ~ ., data = airline_train, method = "glm",
+logit_model_ctrl <- train(as.factor(satisfaction) ~ . - Flight.Distance, data = airline_train, method = "glm",
            metric = "Accuracy",
            trControl = ctrl)
 summary(logit_model_ctrl)
+```
 
+*It may be possible to tune the logistic regression model and improve its accuracy. Using the trainControl and train functions, a new logistic regression model was created using the same predictor variables as in the original model. Using the accuracy metric, the tuned model produced an identical AIC to the original logistic model, meaning that the previous model was the best logistic regression.*
+
+
+```{r}
 prediction_ctrl <- predict(logit_model_ctrl, newdata = airline_test, type = "raw")
 caret::confusionMatrix(as.factor(prediction_ctrl), as.factor(airline_test$satisfaction))
 ```
+
+*After building the Confusion Matrix, although the models are identical in AIC, the tuned model has worse accuracy, a lower kappa value, and lower sensitivity. This demonstrates that model tuning will not always produce the best model and that the normal GLM function might serve better for certain data sets.*
 
 ### KNN
 
