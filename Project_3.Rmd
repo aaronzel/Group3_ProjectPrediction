@@ -12,6 +12,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(cache=TRUE)
 library(ggplot2)
+library(GGally)
 library(class)
 library(caret)
 library(gmodels)
@@ -76,8 +77,11 @@ airline_factorizednormalized_testlabels <- airline_test_factorized_normalized["s
 
 ### Exploration 
 
-*The goal of this analysis is to identify opportunities for which metrics this airline can improve and how that would affect the overall satisfaction of their customers. We want to look at the elements that are the most and least likely to induce a positive or neutral/negative reaction in a customer. This way, we can identify the elements that the airline needs to improve on and where they need to spend the most amount of their resources (time/money).*
+**The goal of this analysis is to identify opportunities for which metrics this airline can improve and how that would affect the overall satisfaction of their customers. We want to look at the elements that are the most and least likely to induce a positive or neutral/negative reaction in a customer. This way, we can identify the elements that the airline needs to improve on and where they need to spend the most amount of their resources (time/money).**
+<br />
+<br />
 
+**Customer Satisfaction**
 ```{r}
 satisfaction_table <- table(airline_train$satisfaction)
 satisfaction_table
@@ -86,7 +90,7 @@ prop.table(satisfaction_table)
 
 *First, we will look at how many customers are satisfied and neutral/dissatisfied. Right off the bat, we see that more than half of customers are neutral/dissatisfied. Next, we will look at the potential variables that are leading to this through the use of a correlation graph and matrix.*
 
-```{r}
+```{r, warning=FALSE}
 #Correlations with satisfaction 
 correlations <- as.data.frame(cor(airline_train[sapply(airline_train, function(x) is.numeric(x))])[19,])
 correlations %>% ggplot(aes(x=reorder(rownames(correlations), correlations[,1]), y=correlations[,1])) + 
@@ -108,14 +112,14 @@ airline_train_corr$satisfaction <- as.integer(airline_train$satisfaction)
 airline_train_corr$X <- NULL
 airline_train_corr$id <- NULL
 
-GGally::ggcorr(airline_train_corr, nbreaks = 4, palette = "RdGy", label = TRUE, label_size = 2, hjust = 1, label_color = "white") + ggtitle("Correlations") + theme(plot.title = element_text(hjust = 0.5))
+ggcorr(airline_train_corr, nbreaks = 4, palette = "RdGy", label = TRUE, label_size = 2, hjust = 1, label_color = "white") + ggtitle("Correlations Between all Variables") + theme(plot.title = element_text(hjust = 0.5))
 ```
 
 *The correlations chart above shows us the correlations between all variables, identifying those with strong, weak, and perhaps no correlations*
 
 <br />
 <br />
-Now, let's take a look at the variables that could have a significant effect on our response.
+**Now, let's take a look at the variables that could have a significant effect on our response.**
 ```{r}
 mean_inflight_wifi <- mean(airline_train$Inflight.wifi.service)
 mean_departure_arrival <- mean(airline_train$Departure.Arrival.time.convenient)
@@ -138,10 +142,11 @@ colnames(mean_df) <- c("InFlight Wifi Service", "Departure Arrival Time Convenie
 mean_df
 ```
 
-*After calculating the mean customer ratings for 14 different variables (services, timing, locations, accessibility, etc), three variables automatically stand out as those that the airline needs to focus on: Inflight Wifi Service, Ease of Online Booking, and Gate Location. If it could improve on these three, the more likely more customers will be satisfied with their experiences.*
+*After calculating the mean customer ratings for 14 different variables (services, timing, locations, accessibility, etc), three variables automatically stand out as those that the airline needs to focus on (lowest ratings): Inflight Wifi Service, Ease of Online Booking, and Gate Location. If it could improve on these three, the more likely more customers will be satisfied with their experiences.*
 <br />
 <br />
-Let's dive deeper into these three variables and see their relationship with satisfaction.
+
+**Let's dive deeper into these three variables and see their relationship with satisfaction.**
 
 ```{r}
 #Inflight Wifi Service vs Satisfaction
@@ -150,7 +155,7 @@ ggplot(airline_train,
            fill = factor(satisfaction,
            labels = c("Neutral or Dissatisfied", "Satisfied")))) +
   geom_bar(position = "dodge") + 
-  labs(y = "Number Satisfied", x = "Inflight Wifi Service Rating", fill = "Satisfaction", title = "Inflight Wifi Service Rating vs Number Satisfied") + theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90))
+  labs(y = "Number Satisfied", x = "Inflight Wifi Service Rating", fill = "Satisfaction", title = "Number Satisfied vs Inflight Wifi Service Rating") + theme(plot.title = element_text(hjust = 0.5))
 
 wifi_satisfaction <- setNames(aggregate(as.numeric(satisfaction) - 1 ~ Inflight.wifi.service, data = airline_train, sum), c("Inflight Wifi Service Rating", "Total Satisfied"))
 wifi_satisfaction
@@ -165,14 +170,13 @@ ggplot(airline_train,
            fill = factor(satisfaction,
            labels = c("Neutral or Dissatisfied", "Satisfied")))) +
   geom_bar(position = "dodge") +
-  labs(y = "Number Satisfied", x = "Ease of Online Booking Rating", fill = "satisfaction", title = "Ease of Online Booking vs Number Satisfied")+ theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90))
+  labs(y = "Number Satisfied", x = "Ease of Online Booking Rating", fill = "satisfaction", title = "Number Satisfied vs Ease of Online Booking")+ theme(plot.title = element_text(hjust = 0.5))
 
 booking_satisfaction <- setNames(aggregate(as.numeric(satisfaction) - 1 ~ Ease.of.Online.booking, data = airline_train, sum), c("Ease of Online Booking Rating", "Total Satisfied"))
 booking_satisfaction
 ```
 
 *The chart above displays the distribution of the ease of online booking rating submitted by customers versus their general satisfaction/dissatisfaction. Similarly to the last chart, as the rating increases, so does the number of satisfied customers. The number of neutral or dissastisfied customers is stable between 2 and 3, reaffirming the mean of the rating. In this chart however, there were customers who were neutral/dissatisfied and satisfied when the rating was 0, slightly opposite of what was in the first chart. If the airline can increase this average rating amongst their customers, the number of satisfactory surveys will increase.*
-
 
 ```{r}
 #Gate Location vs Satisfaction
@@ -181,7 +185,7 @@ ggplot(airline_train,
            fill = factor(satisfaction,
            labels = c("Neutral or Dissatisfied", "Satisfied")))) +
   geom_bar(position = "dodge")+
-  labs(y = "Number Satisfied", x = "Gate Location Rating", fill = "satisfaction", title = "Gate Location Rating vs Number Satisfied") + theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90))
+  labs(y = "Number Satisfied", x = "Gate Location Rating", fill = "satisfaction", title = "Number Satisfied vs Gate Location Rating") + theme(plot.title = element_text(hjust = 0.5))
 
 gate_satisfaction <- setNames(aggregate(as.numeric(satisfaction) - 1 ~ Gate.location, data = airline_train, sum), c("Gate Location Rating", "Total Satisfied"))
 gate_satisfaction
@@ -203,11 +207,10 @@ summary(logit_model1)
 logit_model3 <- glm(satisfaction ~ . - Flight.Distance, data = airline_train, family = "binomial")
 summary(logit_model3)
 
-#Simple Tune of Logisitc Regression Model
+#Simple Tune of Logistic Regression Model
 set.seed(123)
-logit_model4 <- train(as.factor(satisfaction) ~., data = airline_train, method = "glm", family ="binomial")
+logit_model4 <- train(as.factor(satisfaction) ~., data = airline_train, method = "glm", family = "binomial")
 logit_model4
-
 ```
 <br />
 <br />
@@ -240,17 +243,14 @@ satifaction_test_pred_knn <- knn(train = knn_train, test = knn_test, cl = airlin
 
 # Confusion Matrix
 caret::confusionMatrix(as.factor(satifaction_test_pred_knn), as.factor(airline_factorizednormalized_testlabels$satisfaction))
-
-# Cross table 
-#CrossTable(x = airline_factorizednormalized_testlabels, y = satifaction_test_pred_knn, prop.chisq=FALSE)
 ```
 
-*The confusion matrix shows us that the model is correct 92.89% of the time. The kappa is 0.85, which represents how good the predictions are compared to random guessing. This is quite high, which is an indication of a good model. The p value is sufficiently low, at 0.2.2e-16. Because this figure is below 0.05, the model is significant. Mcnemar’s test p-value is 2.2e-16. Model sensitivity is 0.973 - this is the rate that we correctly identified a non-satisfied customer as a non-satisfied customer. Specificity is 0.873 - this is the rate that we predicted a person was satisfied when they actually were. The model more correctly predicts satisfied customers than non-satisfied customers.* 
+*The confusion matrix shows us that the model is correct 92.89% of the time. The kappa is 0.85, which represents how good the predictions are compared to random guessing. This is quite high, which is an indication of a good model. The p value is sufficiently low, at 0.2.2e-16. Because this figure is below 0.05, the model is significant. Mcnemar’s test p-value is 2.2e-16. Model sensitivity is 0.973 - this is the rate that we correctly identified a non-satisfied customer as a non-satisfied customer. Specificity is 0.873 - this is the rate that we predicted a person was satisfied when they actually were. The model more correctly predicts satisfied customers than non-satisfied customers. Furthermore, this model outperforms the logistic regression.* 
 
 ### ANN
 
 **ANN Confusion Matrix and Statistics**
-```{r, cache = TRUE}
+```{r}
 #airlineneuralnet1 <- neuralnet(formula = satisfaction ~ ., data = airline_train_factorized_normalized, hidden = 2, stepmax = 10000000000000000)
 
 #save(airlineneuralnet1, file="airline_neural_net.RData")
@@ -266,7 +266,7 @@ predicted_ANN_results <- ifelse(model_pred > cutoff, 1, 0)
 caret::confusionMatrix(as.factor(predicted_ANN_results), as.factor(airline_factorizednormalized_testlabels$satisfaction))
 ```
 
-*The neural net algorithm provides a prediction of satisfaction by using nodes that model the neurons in our brain. To optimize this model, we adjusted the number of hidden nodes and the probability cutoff for a satisfied (1) prediction. We found that adding hidden nodes helped with accuracy. Going to 2 hidden nodes increased the accuracy to 91%. However, adding any more hidden nodes than 2 proved to be too computationally demanding for the computer to execute. Thereafter, we employed the optimalCutoff function to determine that a cutoff of 41.9% was the optimal value for maximizing accuracy. This model is also advantageous in its distribution of errors as it is skewed towards false negatives over false positives. At its optimal parameters, accuracy is about 91%, sensitivity is about 92%, and Kappa is 0.814. While this model performs well, it is more computationally demanding than KNN, despite providing worse results. Nevertheless, it does outperform the regression.* 
+*The neural net algorithm provides a prediction of satisfaction by using nodes that model the neurons in our brain. To optimize this model, we adjusted the number of hidden nodes and the probability cutoff for a satisfied (1) prediction. We found that adding hidden nodes helped with accuracy. Going to 2 hidden nodes increased the accuracy to about 80%. However, adding any more hidden nodes than 2 proved to be too computationally demanding for the computer to execute. Thereafter, we employed the optimalCutoff function to determine that a cutoff of 33.3% was the optimal value for maximizing accuracy. At its optimal parameters, accuracy is about 80%, sensitivity is about 90%, and Kappa is 0.572. Thus, this model underperforms the logistic regression and KNN.* 
 
 ### Decision Tree 
 
@@ -284,7 +284,7 @@ airline_decision_pred <- as.factor(airline_decision_pred)
 caret::confusionMatrix(airline_decision_pred, airline_test$satisfaction)
 ```
 
-*Decision Tree models comprise a set of logical decisions. These decisions are represented by decision nodes that indicate decisions to be made based on attributes. This is useful when one needs to be informed on what impacts an outcome in order to influence decision making. We found this model to be very effective when determining customer satisfaction with an accuracy of 96% and a Kappa value of .9201. This makes this model very valuable to us since we can also observe a flowchart of what influences customer satisfaction*
+*Decision Tree models comprise a set of logical decisions. These decisions are represented by decision nodes that indicate decisions to be made based on attributes. This is useful when one needs to be informed on what impacts an outcome in order to influence decision making. We found this model to be very effective when determining customer satisfaction with an accuracy of 96%, sensitivity of 98%, and a Kappa value of 0.9201. Furthermore, the model is skewed towards false negatives over false positives, which is ideal. This makes this model very valuable to us since we can also observe a flowchart of what influences customer satisfaction and also gives us the best metrics.*
 
 ### SVM 
 
@@ -305,9 +305,7 @@ caret::confusionMatrix(as.factor(predictions_svm), as.factor(airline_test_factor
 
 *SVM is a supervised learning method that tries to draw a boundary between two levels of response while maximizing margin and minimizing the distance of the misclassified errors from the best hyperplane (or the separating boundary). There are many different types of boundaries, each type corresponds to a different kernel, which is a function that computes the inner product between our predictors. The most popular kernals are the Radial Basis kernel, Polynomial kernel, and Linear kernel. Upon the inspection of the result from the previous analysis, models that assumes linear solution (such as Logistic Regression) perform worse than models that do not. Therefore, we decided to run the model with the Radial Basis Kernal which is one of the most popular non-linear kernals in SVM.*
 
-*Because running SVM model in such a huge dataset consumes a lot of computational resources, we decided to run it only once and save the result in a file. This way, knitting the file would not take too much time because we only need to load the result instead of running the model again.*
-
-*As we can see in the result above, the SVM model achieved an accuracy of 95.11%, sensitivity of 95.65%, and Kappa of 0.9004, which is really good and is only outperformed by Decision Tree by a small amount. On top of that, the incorrect prediction skewed more towards false negative, which is good since we want to underestimate the satisfaction of the customer so that we can work harder to improve the our service.*
+*As we can see in the result above, the SVM model achieved an accuracy of 95.11%, sensitivity of 96.65%, and Kappa of 0.9004, which is pretty good and is only outperformed by Decision Tree by a small amount. On top of that, the incorrect prediction skewed more towards false negative, which is good since we want to underestimate the satisfaction of the customer so that we can work harder to improve the our service.*
 
 ### Combined Models 
 
@@ -324,7 +322,7 @@ combinedTable1$combinedPredictions <- ifelse(combinedTable1$sum >= 3, 1, 0)
 caret::confusionMatrix(as.factor(combinedTable1$combinedPredictions), as.factor(airline_test$satisfaction))
 ```
 
-*The 1st combined model is based on a simple voting system. If 3 or more models predict satisfied (1), then the combined model predicts satisfied. This leads to an accuracy of 93.89%, sensitivity of 96.77%, and Kappa of 0.8751, making it a relatively good model. Next, we will look at an ensemble method.*
+*The 1st combined model is based on a simple voting system. If 3 or more models predict satisfied (1), then the combined model predicts satisfied. This leads to an accuracy of 93.89%, sensitivity of 96.77%, and Kappa of 0.8751, making it a relatively good model. It outperforms the logistic regression, KNN, and ANN models. Next, we will look at an ensemble method.*
 <br />
 <br />
 
@@ -347,6 +345,6 @@ stacked_pred <- predict(stacked_model_tree, newdata = stacked_test)
 caret::confusionMatrix(as.factor(stacked_pred), as.factor(stacked_test_labels))
 ```
 
-*The 2nd combined model, the stacked model, improves on the combined model with an accuracy at 96.3%, Kappa value at 0.925, indicating near perfect agreement, and sensitivity at 97.9%. This model runs a decision tree using the data from all the different models' predictions, thereby creating an ensemble method.*
+*The 2nd combined model, the stacked model, improves on the combined model with an accuracy at 96.3%, Kappa value at 0.925, indicating near perfect agreement, and sensitivity at 97.9%. This model runs a decision tree using the data from all the different models' predictions, thereby creating an ensemble method. This model is better than any of the individual models, albeit by a small margin.*
 
 ### Conclusion 
