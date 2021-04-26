@@ -253,8 +253,8 @@ caret::confusionMatrix(as.factor(satifaction_test_pred_knn), as.factor(airline_f
 ```{r}
 #airlineneuralnet1 <- neuralnet(formula = satisfaction ~ ., data = airline_train_factorized_normalized, hidden = 2, stepmax = 10000000000000000)
 
-#save(airlineneuralnet1, file="airline_neural_net.RData")
-load("airline_neural_net.RData")
+#save(airlineneuralnet1, file="airline_neural_net1.RData")
+load("airline_neural_net1.RData")
 
 model_results <- neuralnet::compute(airlineneuralnet1, airline_test_factorized_normalized)
 predicted_y <- model_results$net.result
@@ -266,7 +266,7 @@ predicted_ANN_results <- ifelse(model_pred > cutoff, 1, 0)
 caret::confusionMatrix(as.factor(predicted_ANN_results), as.factor(airline_factorizednormalized_testlabels$satisfaction))
 ```
 
-*The neural net algorithm provides a prediction of satisfaction by using nodes that model the neurons in our brain. To optimize this model, we adjusted the number of hidden nodes and the probability cutoff for a satisfied (1) prediction. We found that adding hidden nodes helped with accuracy. Going to 2 hidden nodes increased the accuracy to about 80%. However, adding any more hidden nodes than 2 proved to be too computationally demanding for the computer to execute. Thereafter, we employed the optimalCutoff function to determine that a cutoff of 33.3% was the optimal value for maximizing accuracy. At its optimal parameters, accuracy is about 80%, sensitivity is about 90%, and Kappa is 0.572. Thus, this model underperforms the logistic regression and KNN.* 
+*The neural net algorithm provides a prediction of satisfaction by using nodes that model the neurons in our brain. To optimize this model, we adjusted the number of hidden nodes and the probability cutoff for a satisfied (1) prediction. We found that adding hidden nodes helped with accuracy. Going to 2 hidden nodes increased the accuracy to about 88%. However, adding any more hidden nodes than 2 proved to be too computationally demanding for the computer to execute. Thereafter, we employed the optimalCutoff function to determine that a cutoff of 44.9% was the optimal value for maximizing accuracy. At its optimal parameters, accuracy is about 88%, sensitivity is about 94%, and Kappa is 0.758. Thus, this model outperforms the logistic regression but underperforms KNN.* 
 
 ### Decision Tree 
 
