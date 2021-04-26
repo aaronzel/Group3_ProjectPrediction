@@ -202,9 +202,9 @@ logit_model <- glm(satisfaction ~ . - Flight.Distance, data = airline_train, fam
 summary(logit_model)
 
 #Simple Tune of Logistic Regression Model
-#set.seed(123)
-#logit_model_tuned <- train(as.factor(satisfaction) ~. - Flight.Distance, data = airline_train, method = "glm", family = "binomial")
-#summary(logit_model_tuned)
+set.seed(123)
+logit_model_tuned <- train(as.factor(satisfaction) ~. - Flight.Distance, data = airline_train, method = "glm", family = "binomial")
+summary(logit_model_tuned)
 ```
 <br />
 <br />
@@ -218,6 +218,29 @@ caret::confusionMatrix(as.factor(binary_predictions), as.factor(airline_test$sat
 ```
 
 *The logistic regression provides a prediction of satisfaction by using the log odds ratio. The model above achieved an accuracy of 87.3%, sensitivity of 91.4%, and Kappa of 0.74. This shows that the model is helpful in predicting customer satisfaction, along with highlighting the particular areas that impact satisfaction the most. We also optimized the model by using the optimalCutoff function for predicting satisfied (1) or not satisfied (0). While accuracy could be higher, the errors in this model are skewed more towards false negatives than false positives, which is also better because we'd rather not miss dissatisfied customers by thinking they were satisfied when inn reality they were not. Since all variables are significant (besides flight distance), this also means they are all predictive. According to our model, some of the variables that have the highest positive impact on satisfaction are: loyal customers and online boarding, whereas some of the variables that have the most negative impact on satisfaction are: personal travelers and economy/economy plus travelers. Perhaps this means that the airline needs to focus more on these customers and their amenities to boost satisfaction.*
+
+```{r}
+ctrl <- trainControl(method = "cv", number = 10)
+
+#grid <- expand.grid(.model = "glm",
+#                    .trials = c(1, 5, 10, 15, 20, 25, 30, 35),
+#                    .winnow = "FALSE")
+
+set.seed(300)
+logit_model_ctrl <- train(as.factor(satisfaction) ~ ., data = airline_train, method = "glm",
+           metric = "Accuracy",
+           trControl = ctrl)
+```
+
+```{r}
+prediction_ctrl <- predict(logit_model_ctrl, newdata = airline_test, type = "raw")
+#optimal_ctrl <- optimalCutoff(airline_test$satisfaction, prediction_ctrl)
+#binary_predictions_ctrl <- ifelse(prediction_ctrl > optimal, 1, 0)
+
+caret::confusionMatrix(as.factor(prediction_ctrl), as.factor(airline_test$satisfaction))
+```
+
+
 
 ### KNN
 
