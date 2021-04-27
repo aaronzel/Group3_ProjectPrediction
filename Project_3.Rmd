@@ -237,7 +237,7 @@ prediction_ctrl <- predict(logit_model_ctrl, newdata = airline_test, type = "raw
 caret::confusionMatrix(as.factor(prediction_ctrl), as.factor(airline_test$satisfaction))
 ```
 
-*After building the Confusion Matrix, although the models are identical in AIC, the tuned model has worse accuracy, a lower kappa value, and lower sensitivity. This demonstrates that model tuning will not always produce the best model and that the normal GLM function might serve better for certain data sets.*
+*After building the Confusion Matrix, although the models are identical in AIC, the tuned model has worse accuracy, a lower kappa value, and lower sensitivity. This demonstrates that model tuning will not always produce the best model and that the normal GLM function might serve better for certain data sets. Nevertheless, we would have to continue to tune the model in order to form conclusive takeaways.* 
 
 ### KNN
 
