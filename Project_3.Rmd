@@ -1,7 +1,7 @@
 ---
-title: "Project_3"
-author: "Aaron Zelmanov, Muhammad Hafizudeen Mohamad Saman, Nakul Chadha, Kendall Cohen, Michael Geraci"
-date: "3/29/2021"
+title: "Project 3 - Predicting Airline Customer Satisfaction"
+author: "Sanjeev's SupeRstars: Aaron Zelmanov, Muhammad Hafizudeen Mohamad Saman, Nakul Chadha, Kendall Cohen, Michael Geraci"
+date: "4/27/2021"
 output:
   html_document:
     code_folding: hide
@@ -25,11 +25,13 @@ library(InformationValue)
 library(dplyr)
 library(kernlab)
 
+#Read in train and test sets
 airline_train <- read.csv("train.csv")
 airline_test <- read.csv("test.csv")
 
 airline_train_corr <- airline_train
 
+#Null and factorize all necessary predictor variables
 airline_train$X <- NULL
 airline_train$id <- NULL
 airline_train$Gender <- as.factor(airline_train$Gender)
@@ -46,6 +48,7 @@ airline_test$Type.of.Travel <- as.factor(airline_test$Type.of.Travel)
 airline_test$Class <- as.factor(airline_test$Class)
 airline_test$satisfaction <- as.numeric(as.factor(airline_test$satisfaction))-1
 
+#Remove NA's from Arrival.Delay.in.Minutes and replace with its mean
 airline_train$Arrival.Delay.in.Minutes[is.na(airline_train$Arrival.Delay.in.Minutes)] <- mean(airline_train$Arrival.Delay.in.Minutes, na.rm = TRUE)
 airline_test$Arrival.Delay.in.Minutes[is.na(airline_test$Arrival.Delay.in.Minutes)] <- mean(airline_test$Arrival.Delay.in.Minutes, na.rm = TRUE)
 ```
@@ -64,10 +67,12 @@ airline_test$Arrival.Delay.in.Minutes[is.na(airline_test$Arrival.Delay.in.Minute
 #airline_train_factorized_normalized FOR KNN, ANN
 #airline_test_factorized_normalized FOR KNN, ANN
 
+#Min-max normalization function
 normalize <- function(x) {
   return ((x - min(x)) / (max(x) - min(x))) #everything 0 to 1
 }
 
+#Create data sets for various models
 airline_train_factorized<- as.data.frame(model.matrix(~.-1, data = airline_train))
 airline_train_factorized_normalized <- as.data.frame(lapply(airline_train_factorized[1:ncol(airline_train_factorized)], normalize))
 airline_factorizednormalized_trainlabels <- airline_train_factorized_normalized["satisfaction"]
@@ -85,8 +90,11 @@ airline_factorizednormalized_testlabels <- airline_test_factorized_normalized["s
 
 **Customer Satisfaction**
 ```{r}
+#Customer satisfaction table
 satisfaction_table <- table(airline_train$satisfaction)
 satisfaction_table
+
+#Proportion customer satisfaction table
 prop.table(satisfaction_table)
 ```
 
@@ -114,6 +122,7 @@ airline_train_corr$satisfaction <- as.integer(airline_train$satisfaction)
 airline_train_corr$X <- NULL
 airline_train_corr$id <- NULL
 
+#Correlation chart
 ggcorr(airline_train_corr, nbreaks = 4, palette = "RdGy", label = TRUE, label_size = 2, hjust = 1, label_color = "white") + ggtitle("Correlations Between all Variables") + theme(plot.title = element_text(hjust = 0.5))
 ```
 
@@ -122,7 +131,8 @@ ggcorr(airline_train_corr, nbreaks = 4, palette = "RdGy", label = TRUE, label_si
 <br />
 <br />
 **Now, let's take a look at the variables that could have a significant effect on our response.**
-```{r}
+```{r mean}
+#Calculate means for relevant predictor variables
 mean_inflight_wifi <- mean(airline_train$Inflight.wifi.service)
 mean_departure_arrival <- mean(airline_train$Departure.Arrival.time.convenient)
 mean_ease <- mean(airline_train$Ease.of.Online.booking)
@@ -139,6 +149,7 @@ mean_inflight_service <- mean(airline_train$Inflight.service)
 mean_cleanliness <- mean(airline_train$Cleanliness)
 mean_df <- data.frame(mean_inflight_wifi, mean_departure_arrival, mean_ease, mean_gate, mean_food_drink, mean_online_board, mean_seat, mean_inflight_entertain, mean_onboard_service, mean_leg_room, mean_baggage, mean_checkin, mean_inflight_service, mean_cleanliness)
 
+#Change column names in mean data frame
 colnames(mean_df) <- c("InFlight Wifi Service", "Departure Arrival Time Convenient", "Ease of Online Booking", "Gate Location", "Food & Drink", "Online Boarding", "Seat Comfort", "Inflight Entertainment", "On-board Service", "Leg Room Service", "Baggage Handling", "Check-in Service", "Inflight Service", "Cleanliness")
 
 mean_df
@@ -150,7 +161,7 @@ mean_df
 
 **Let's dive deeper into these three variables and see their relationship with satisfaction.**
 
-```{r}
+```{r chart1}
 #Inflight Wifi Service vs Satisfaction
 ggplot(airline_train,
        aes(x = Inflight.wifi.service,
@@ -159,13 +170,13 @@ ggplot(airline_train,
   geom_bar(position = "dodge") + 
   labs(y = "Number Satisfied", x = "Inflight Wifi Service Rating", fill = "Satisfaction", title = "Number Satisfied vs Inflight Wifi Service Rating") + theme(plot.title = element_text(hjust = 0.5))
 
-wifi_satisfaction <- setNames(aggregate(as.numeric(satisfaction) - 1 ~ Inflight.wifi.service, data = airline_train, sum), c("Inflight Wifi Service Rating", "Total Satisfied"))
+wifi_satisfaction <- setNames(aggregate(as.numeric(satisfaction) ~ Inflight.wifi.service, data = airline_train, sum), c("Inflight Wifi Service Rating", "Total Satisfied"))
 wifi_satisfaction
 ```
 
 *The chart above displays the distribution between the Inflight Wifi Service Rating and the corresponding number of people who were satisfied/unsatisfied. As expected, as the rating for inflight wifi service increases, so does the number of people who are satisfied. Interestingly, the number of people who are neutral or dissatisfied is very similar if the rating is 2 or 3, which is in line with the mean inflight wifi service rating as calculated above. Further, it is a surprise that almost all of the customers who gave a 0 rating for inflight wifi service were all satisfied, according to the chart. If the airline can increase this average rating amongst their customers, the number of satisfactory surveys will increase.*
 
-```{r}
+```{r chart2}
 #Ease of Online Booking vs Satisfaction
 ggplot(airline_train,
        aes(x = Ease.of.Online.booking,
@@ -174,13 +185,13 @@ ggplot(airline_train,
   geom_bar(position = "dodge") +
   labs(y = "Number Satisfied", x = "Ease of Online Booking Rating", fill = "satisfaction", title = "Number Satisfied vs Ease of Online Booking")+ theme(plot.title = element_text(hjust = 0.5))
 
-booking_satisfaction <- setNames(aggregate(as.numeric(satisfaction) - 1 ~ Ease.of.Online.booking, data = airline_train, sum), c("Ease of Online Booking Rating", "Total Satisfied"))
+booking_satisfaction <- setNames(aggregate(as.numeric(satisfaction) ~ Ease.of.Online.booking, data = airline_train, sum), c("Ease of Online Booking Rating", "Total Satisfied"))
 booking_satisfaction
 ```
 
 *The chart above displays the distribution of the ease of online booking rating submitted by customers versus their general satisfaction/dissatisfaction. Similarly to the last chart, as the rating increases, so does the number of satisfied customers. The number of neutral or dissastisfied customers is stable between 2 and 3, reaffirming the mean of the rating. In this chart however, there were customers who were neutral/dissatisfied and satisfied when the rating was 0, slightly opposite of what was in the first chart. If the airline can increase this average rating amongst their customers, the number of satisfactory surveys will increase.*
 
-```{r}
+```{r chart3}
 #Gate Location vs Satisfaction
 ggplot(airline_train,
        aes(x = Gate.location,
@@ -189,7 +200,7 @@ ggplot(airline_train,
   geom_bar(position = "dodge")+
   labs(y = "Number Satisfied", x = "Gate Location Rating", fill = "satisfaction", title = "Number Satisfied vs Gate Location Rating") + theme(plot.title = element_text(hjust = 0.5))
 
-gate_satisfaction <- setNames(aggregate(as.numeric(satisfaction) - 1 ~ Gate.location, data = airline_train, sum), c("Gate Location Rating", "Total Satisfied"))
+gate_satisfaction <- setNames(aggregate(as.numeric(satisfaction) ~ Gate.location, data = airline_train, sum), c("Gate Location Rating", "Total Satisfied"))
 gate_satisfaction
 ```
 
@@ -199,18 +210,23 @@ gate_satisfaction
 ### Regression 
 
 **Logistic Regression Summary**
-```{r}
+```{r runlog}
+#Run logistic regression model
 logit_model <- glm(satisfaction ~ . - Flight.Distance, data = airline_train, family = "binomial")
 summary(logit_model)
 ```
 <br />
 <br />
 **Regression Confusion Matrix and Statistics**
-```{r}
+```{r confusionlog}
+#Predict logistic regression with testing data
 prediction <- predict(logit_model, newdata = airline_test, type = "response")
+
+#Find optimal cutoff for testing data for use in binary predictions
 optimal <- optimalCutoff(airline_test$satisfaction, prediction)[1]
 binary_predictions <- ifelse(prediction > optimal, 1, 0)
 
+#Create confusion matrix with binary predictions and response variable as factors
 caret::confusionMatrix(as.factor(binary_predictions), as.factor(airline_test$satisfaction))
 ```
 
@@ -219,7 +235,8 @@ caret::confusionMatrix(as.factor(binary_predictions), as.factor(airline_test$sat
 <br /> 
 
 **Tuned Regression Summary, Confusion Matrix, and Statistics**
-```{r}
+```{r tunedlog}
+#Tuned model
 ctrl <- trainControl(method = "cv", number = 10)
 
 set.seed(300)
@@ -232,7 +249,7 @@ summary(logit_model_ctrl)
 *It may be possible to tune the logistic regression model and improve its accuracy. Using the trainControl and train functions, a new logistic regression model was created using the same predictor variables as in the original model. Using the accuracy metric, the tuned model produced an identical AIC to the original logistic model, meaning that the previous model was the best logistic regression.*
 
 
-```{r}
+```{r confusiontunedlog}
 prediction_ctrl <- predict(logit_model_ctrl, newdata = airline_test, type = "raw")
 caret::confusionMatrix(as.factor(prediction_ctrl), as.factor(airline_test$satisfaction))
 ```
@@ -242,7 +259,7 @@ caret::confusionMatrix(as.factor(prediction_ctrl), as.factor(airline_test$satisf
 ### KNN
 
 **KNN Confusion Matrix and Statistics**
-```{r, cache = TRUE}
+```{r knn ,cache=FALSE}
 set.seed(12345)
 
 knn_train <- airline_train_factorized_normalized
@@ -264,19 +281,25 @@ caret::confusionMatrix(as.factor(satifaction_test_pred_knn), as.factor(airline_f
 ### ANN
 
 **ANN Confusion Matrix and Statistics**
-```{r}
+```{r ann}
+#Run Neural Net Model
 #airlineneuralnet1 <- neuralnet(formula = satisfaction ~ ., data = airline_train_factorized_normalized, hidden = 2, stepmax = 10000000000000000)
 
+#Save and load file of neural net model for faster kniting
 #save(airlineneuralnet1, file="airline_neural_net1.RData")
 load("airline_neural_net1.RData")
 
+#Compute model results
 model_results <- neuralnet::compute(airlineneuralnet1, airline_test_factorized_normalized)
 predicted_y <- model_results$net.result
 
 model_pred <- predict(airlineneuralnet1, newdata = airline_test_factorized_normalized, type = "response")
+
+#Find optimal cutoff for testing data for use in binary predictions
 cutoff <- optimalCutoff(airline_test_factorized_normalized$satisfaction, model_pred)[1]
 predicted_ANN_results <- ifelse(model_pred > cutoff, 1, 0) 
 
+#Create confusion matrix with binary predictions and response variable as factors
 caret::confusionMatrix(as.factor(predicted_ANN_results), as.factor(airline_factorizednormalized_testlabels$satisfaction))
 ```
 
@@ -285,16 +308,17 @@ caret::confusionMatrix(as.factor(predicted_ANN_results), as.factor(airline_facto
 ### Decision Tree 
 
 **Decision Tree Confusion Matrix and Statistics**
-```{r}
+```{r DT}
 airline_test$satisfaction <- as.factor(airline_test$satisfaction)
 airline_train$satisfaction <- as.factor(airline_train$satisfaction)
 
+#Run Decision Tree model and predict
 airline_decision <- C5.0(satisfaction ~ ., data = airline_train)
 airline_decision_pred <- predict(airline_decision, newdata = airline_test)
 
-#CrossTable(airline_test$satisfaction, airline_decision_pred)
 airline_decision_pred <- as.factor(airline_decision_pred)
 
+#Create confusion matrix with binary predictions and response variable as factors
 caret::confusionMatrix(airline_decision_pred, airline_test$satisfaction)
 ```
 
@@ -303,7 +327,7 @@ caret::confusionMatrix(airline_decision_pred, airline_test$satisfaction)
 ### SVM 
 
 **SVM Confusion Matrix and Statistics**
-```{r, warning=FALSE}
+```{r SVM, warning=FALSE}
 #building SVM model
 #svm_model1 <- ksvm(as.factor(satisfaction) ~., data = airline_train_factorized_normalized, kernel = "rbfdot", scaled = TRUE)
 
@@ -325,6 +349,7 @@ caret::confusionMatrix(as.factor(predictions_svm), as.factor(airline_test_factor
 
 **Combined Model Confusion Matrix and Statistics**
 ```{r}
+#Combine decision vectors into one data frame
 combinedTable1 <- data.frame(ANN = as.numeric(predicted_ANN_results), kNN = as.numeric(satifaction_test_pred_knn), logistic = as.numeric(binary_predictions), DT = as.numeric(airline_decision_pred), SVM = as.numeric(predictions_svm))
 
 combinedTable1$kNN <- combinedTable1$kNN - 1
@@ -333,6 +358,7 @@ combinedTable1$SVM <- combinedTable1$SVM - 1
 combinedTable1$sum <- rowSums(combinedTable1)
 combinedTable1$combinedPredictions <- ifelse(combinedTable1$sum >= 3, 1, 0) 
 
+#Create confusion matrix with combined prediction and response variable as factors
 caret::confusionMatrix(as.factor(combinedTable1$combinedPredictions), as.factor(airline_test$satisfaction))
 ```
 
@@ -345,6 +371,8 @@ caret::confusionMatrix(as.factor(combinedTable1$combinedPredictions), as.factor(
 ```{r}
 set.seed(123)
 combinedTable1$satisfaction <- airline_test_factorized_normalized$satisfaction
+
+#Create test set for stacked model
 test_set <- sample(1:nrow(combinedTable1), 0.2*nrow(combinedTable1))
 
 stacked_train <- combinedTable1[-test_set, ]
@@ -352,10 +380,13 @@ stacked_test <- combinedTable1[test_set, ]
 
 stacked_test_labels <- combinedTable1[test_set, "satisfaction"]
 
+#Run Decision Tree model on stacked train set
 stacked_model_tree <- C5.0(as.factor(satisfaction) ~ ANN + kNN + logistic + DT + SVM, data = stacked_train)
 
+#Predict using the stacked test set
 stacked_pred <- predict(stacked_model_tree, newdata = stacked_test)
 
+#Create confusion matrix with the stacked prediction and response variable as factors
 caret::confusionMatrix(as.factor(stacked_pred), as.factor(stacked_test_labels))
 ```
 
